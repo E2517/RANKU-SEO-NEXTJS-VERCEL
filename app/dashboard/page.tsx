@@ -21,6 +21,7 @@ export default function DashboardPage() {
 
     useEffect(() => {
         const tab = searchParams.get('tab');
+        console.log('URL tab:', tab, '| Estado actual:', activeTab);
         if (tab) {
             setActiveTab(tab);
         } else {
@@ -70,7 +71,9 @@ export default function DashboardPage() {
                     <Image src="/assets/ninja.png" alt="Ninja Ranku.es" className="logo-icon" width={20} height={20} />
                 </Link>
                 <div className="auth-buttons">
-                    <button className="logout-button">Cerrar Sesión</button>
+                    <form action="/api/auth/logout" method="post">
+                        <button type="submit" className="logout-button">Cerrar Sesión</button>
+                    </form>
                 </div>
             </header>
 

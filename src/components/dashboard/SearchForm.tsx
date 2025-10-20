@@ -57,6 +57,7 @@ export default function SearchForm() {
             const data = await res.json();
 
             if (data.success) {
+                console.log('1.-Respuesta de API:', data);
                 showToast.success(`${data.message} Puedes ir a la pestaña 'Dominios o Estadísticas' para ver los resultados.`, {
                     duration: 5000,
                     position: 'bottom-center',
@@ -65,6 +66,7 @@ export default function SearchForm() {
                     sound: true,
                 });
             } else if (data.redirectTo) {
+                console.log('2.-Respuesta de API:', data);
                 showToast.warning(data.message, {
                     duration: 4000,
                     position: 'top-center',
@@ -76,6 +78,7 @@ export default function SearchForm() {
                     router.push(data.redirectTo);
                 }, 4000);
             } else {
+                console.log('3.-Respuesta de API:', data);
                 showToast.error(data.message, {
                     duration: 4000,
                     position: 'top-center',

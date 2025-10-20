@@ -257,7 +257,6 @@
   color: #dc3545;
 }
 
-/* Tablas */
 .table-container {
   overflow-x: auto;
   width: 100%;
@@ -316,7 +315,6 @@ tr:hover {
   border: 1px solid #f5c6cb;
 }
 
-/* Botones genéricos */
 .button {
   padding: 10px 18px;
   border: none;
@@ -340,7 +338,10 @@ tr:hover {
   color: #fff;
 }
 
-/* Mobile */
+.mobile-menu-toggle {
+  display: none;
+}
+
 @media (max-width: 768px) {
   .top-bar {
     padding: 0.75rem 1rem;
@@ -357,19 +358,21 @@ tr:hover {
     margin-left: auto;
   }
 
-  .mobile-menu-toggle {
-    display: block;
-    background: none;
-    border: none;
-    font-size: 1.5rem;
-    cursor: pointer;
-    color: #6c4ab6;
-    position: absolute;
-    top: 1rem;
-    left: 1rem;
-    z-index: 1001;
+  @media (max-width: 768px) {
+    .mobile-menu-toggle {
+      display: block;
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      cursor: pointer;
+      color: #6c4ab6;
+      position: absolute;
+      top: 1rem;
+      left: 1rem;
+      z-index: 1001;
+    }
   }
-
+  
   .sidebar {
     width: 220px;
     top: 70px;

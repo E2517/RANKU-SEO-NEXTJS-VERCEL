@@ -1,7 +1,9 @@
 import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 
-export async function GET() {
+export async function POST() {
   (await cookies()).delete('user_id');
-  return NextResponse.redirect(new URL('/auth', process.env.APP_URL || 'http://localhost:3000'));
+
+  const baseUrl = process.env.APP_URL || 'http://localhost:3000';
+  return NextResponse.redirect(new URL('/auth', baseUrl));
 }
