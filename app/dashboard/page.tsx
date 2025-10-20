@@ -19,6 +19,8 @@ export default function DashboardPage() {
     const searchParams = useSearchParams();
     const [activeTab, setActiveTab] = useState('search-section');
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+    const [isAdmin, setIsAdmin] = useState(false);
+    const [username, setUsername] = useState('');
 
     useEffect(() => {
         const tab = searchParams.get('tab');
@@ -29,6 +31,27 @@ export default function DashboardPage() {
             setActiveTab('search-section');
         }
     }, [searchParams]);
+
+    useEffect(() => {
+        const fetchUser = async () => {
+            try {
+                const res = await fetch('/api/user');
+                if (res.status === 401) {
+                    window.location.href = '/auth';
+                    return;
+                }
+                const data = await res.json();
+                if (data.success) {
+                    setIsAdmin(data.user.role === 'admin');
+                    setUsername(data.user.username);
+                }
+            } catch (err) {
+                console.error('Error al cargar el usuario:', err);
+            }
+        };
+
+        fetchUser();
+    }, []);
 
     const toggleSidebar = () => {
         setIsSidebarOpen(!isSidebarOpen);
@@ -54,8 +77,7 @@ export default function DashboardPage() {
                 window.location.href = '/contacto.html';
                 return null;
             case 'admin-panel':
-                return <AdminPanel />;
-                return null;
+                return isAdmin ? <AdminPanel /> : <div>No tienes permisos para ver esta sección.</div>;
             default:
                 return <SearchForm />;
         }
@@ -82,8 +104,8 @@ export default function DashboardPage() {
                 <aside className={`sidebar ${isSidebarOpen ? 'active' : ''}`} id="sidebar">
                     <div className="sidebar-header">
                         <div className="user-profile">
-                            <div className="avatar">C</div>
-                            <span className="username-text">Carlos Spain</span>
+                            <div className="avatar">{username.charAt(0)}</div>
+                            <span className="username-text">{username}</span>
                         </div>
                     </div>
                     <nav className="sidebar-nav">
@@ -176,17 +198,19 @@ export default function DashboardPage() {
                                     <i className="fas fa-envelope"></i> Contacto
                                 </button>
                             </li>
-                            <li>
-                                <button
-                                    className="sidebar-link"
-                                    onClick={() => {
-                                        setActiveTab('admin-panel');
-                                        setIsSidebarOpen(false);
-                                    }}
-                                >
-                                    <i className="fas fa-cog"></i> Panel de Admin
-                                </button>
-                            </li>
+                            {isAdmin && (
+                                <li>
+                                    <button
+                                        className="sidebar-link"
+                                        onClick={() => {
+                                            setActiveTab('admin-panel');
+                                            setIsSidebarOpen(false);
+                                        }}
+                                    >
+                                        <i className="fas fa-cog"></i> Panel de Admin
+                                    </button>
+                                </li>
+                            )}
                         </ul>
                     </nav>
                 </aside>

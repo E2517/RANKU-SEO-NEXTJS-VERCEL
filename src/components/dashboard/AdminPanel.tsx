@@ -23,6 +23,16 @@ export default function AdminPanel() {
         const fetchUsers = async () => {
             try {
                 const res = await fetch('/api/admin/users');
+                if (res.status === 403) {
+                    showToast.error('Acceso denegado. No tienes permisos de administrador.', {
+                        duration: 4000,
+                        position: 'top-center',
+                        transition: 'topBounce',
+                        sound: true,
+                    });
+                    setLoading(false);
+                    return;
+                }
                 if (!res.ok) {
                     throw new Error('Error al cargar usuarios');
                 }
@@ -56,6 +66,15 @@ export default function AdminPanel() {
     const handleResetLimits = async () => {
         try {
             const res = await fetch('/api/reset-keyword-limits', { method: 'GET' });
+            if (res.status === 403) {
+                showToast.error('Acceso denegado. No tienes permisos de administrador.', {
+                    duration: 4000,
+                    position: 'top-center',
+                    transition: 'topBounce',
+                    sound: true,
+                });
+                return;
+            }
             const data = await res.json();
             if (data.success) {
                 showToast.success(`Límites reseteados. Usuarios actualizados: ${data.updated}`, {
@@ -85,6 +104,15 @@ export default function AdminPanel() {
     const handleUpdateAllKeywords = async () => {
         try {
             const res = await fetch('/api/admin/update-all-keywords', { method: 'GET' });
+            if (res.status === 403) {
+                showToast.error('Acceso denegado. No tienes permisos de administrador.', {
+                    duration: 4000,
+                    position: 'top-center',
+                    transition: 'topBounce',
+                    sound: true,
+                });
+                return;
+            }
             const data = await res.json();
             if (data.success) {
                 showToast.success(`Keywords actualizadas. Registros procesados: ${data.updated}`, {
