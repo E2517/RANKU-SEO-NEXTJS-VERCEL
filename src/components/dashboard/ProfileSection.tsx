@@ -70,12 +70,42 @@ export default function ProfileSection() {
     }, [user]);
 
     const handlePlanClick = (plan: string) => {
+        const subscribe = async () => {
+            try {
+                const res = await fetch('/api/create-checkout-session', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ plan }),
+                });
+                const data = await res.json();
+                if (data.url) {
+                    window.location.href = data.url;
+                } else {
+                    showToast.error(`Error al iniciar la suscripción: ${data.error || data.message || 'Error desconocido.'}`, {
+                        duration: 4000,
+                        position: 'top-center',
+                        transition: 'topBounce',
+                        sound: true,
+                    });
+                }
+            } catch (e) {
+                showToast.error('Error de conexión con el servidor de pago.', {
+                    duration: 4000,
+                    position: 'top-center',
+                    transition: 'topBounce',
+                    sound: true,
+                });
+            }
+        };
+
         showToast.info(`Redirigiendo a la suscripción del plan ${plan}...`, {
-            duration: 4000,
+            duration: 2000,
             position: 'top-center',
             transition: 'topBounce',
             sound: true,
         });
+
+        setTimeout(subscribe, 1000);
     };
 
     const handleCreditsClick = (credits: number) => {
@@ -229,7 +259,7 @@ export default function ProfileSection() {
                         <li>Actualización diaria (24h) y semanal (7 dias)</li>
                         <li>Análisis de competencia</li>
                         <li>✅ RankMap: Posición en Google Maps por ubicación</li>
-                        <li>🥷 ScanMap: Visibilidad de dominio según la ubicación del usuario (10 búsquedas/mes)</li>
+                        <li>🥷 ScanMap: Visibilidad de dominio según la ubicación del usuario (15 búsquedas/mes)</li>
                         <li>📈 Estadisticas inteligentes</li>
                         <li>Informe en Excel descargable</li>
                         <li>Informe SEO PDF descargable</li>
@@ -248,7 +278,7 @@ export default function ProfileSection() {
                         <li>Actualización diaria (24h) y semanal (7 dias)</li>
                         <li>Análisis de competencia</li>
                         <li>✅ RankMap: Posición en Google Maps por ubicación</li>
-                        <li>🥷 ScanMap: Visibilidad de dominio según la ubicación del usuario (15 búsquedas/mes)</li>
+                        <li>🥷 ScanMap: Visibilidad de dominio según la ubicación del usuario (25 búsquedas/mes)</li>
                         <li>📈 Estadisticas inteligentes</li>
                         <li>Informe en Excel descargable</li>
                         <li>Informe SEO PDF descargable</li>

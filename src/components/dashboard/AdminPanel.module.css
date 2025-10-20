@@ -1,0 +1,109 @@
+.card {
+    background: #ffffff;
+    padding: 1.5rem;
+    border-radius: 0.75rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    margin-bottom: 1.5rem;
+    border: 1px solid #e5e7eb;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.formGroup {
+    margin-bottom: 1.25rem;
+}
+
+.button {
+    padding: 10px 18px;
+    border: none;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    font-size: 1rem;
+    background: linear-gradient(to right, #4f46e5, #6366f1);
+    color: #fff;
+    transition: background 0.3s ease;
+}
+
+.button:hover {
+    background: linear-gradient(to right, #6366f1, #818cf8);
+}
+
+.button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.tableContainer {
+    overflow-x: auto;
+    border-radius: 0.75rem;
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    margin-top: 1rem;
+}
+
+.tableContainer table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: #ffffff;
+    border-radius: 0.75rem;
+    overflow: hidden;
+}
+
+.tableContainer th,
+.tableContainer td {
+    border: 1px solid #d1d5db;
+    padding: 12px;
+    text-align: left;
+}
+
+.tableContainer th {
+    background-color: #f3f4f6;
+    font-weight: 700;
+    color: #6b7280;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    letter-spacing: 0.05em;
+}
+
+.tableContainer tr:nth-child(even) {
+    background-color: #f9fafb;
+}
+
+.tableContainer tr:hover {
+    background-color: #f3f4f6;
+}
+
+.usersTable {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+}
+
+.usersTable th,
+.usersTable td {
+    padding: 0.75rem;
+    text-align: left;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.usersTable th {
+    background-color: #f8f9fa;
+    font-weight: 600;
+    color: #374151;
+}
+
+.noData {
+    text-align: center;
+    padding: 1.5rem;
+    color: #9ca3af;
+    font-style: italic;
+}
+
+.secondaryButton {
+    background: linear-gradient(to right, #10b981, #34d399);
+    margin-left: 0.5rem;
+}
+
+.secondaryButton:hover {
+    background: linear-gradient(to right, #34d399, #6ee7b7);
+}

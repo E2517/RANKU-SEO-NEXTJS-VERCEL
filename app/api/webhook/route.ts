@@ -3,6 +3,7 @@ import { stripe } from '@/lib/stripe';
 import User from '@/models/User';
 import { connectDB } from '@/lib/mongoose';
 import { Stripe } from 'stripe';
+import { getKeywordLimit, getScanMapBaseLimit } from '@/lib/utils';
 
 const relevantEvents = new Set([
     'checkout.session.completed',
@@ -50,20 +51,24 @@ export async function POST(req: NextRequest) {
                         limit: 1,
                     });
 
-                    if (subscriptions.data.length === 0) {
-                        console.error('No active subscription found for customer:', customerId);
-                        break;
-                    }
+                    if (subscriptions.data.length === 0) break;
 
                     const sub = subscriptions.data[0];
-                    const subscription = sub as any;
+                    const startDate = new Date((sub as any).current_period_start * 1000);
+                    const endDate = new Date((sub as any).current_period_end * 1000);
+
+                    const keywordLimit = getKeywordLimit(plan);
+                    const scanMapBase = getScanMapBaseLimit(plan);
+
                     await User.findByIdAndUpdate(userId, {
                         stripeCustomerId: customerId,
                         subscriptionId: sub.id,
                         subscriptionPlan: plan,
-                        subscriptionStartDate: new Date(subscription.current_period_start * 1000),
-                        subscriptionEndDate: new Date(subscription.current_period_end * 1000),
+                        subscriptionStartDate: startDate,
+                        subscriptionEndDate: endDate,
                         isSubscriptionCanceled: false,
+                        limitKeywords: keywordLimit,
+                        limitScanMap: scanMapBase,
                     });
                 } else if (
                     session.mode === 'payment' &&
@@ -79,11 +84,12 @@ export async function POST(req: NextRequest) {
 
             case 'invoice.payment_succeeded': {
                 const invoice = event.data.object as any;
-                const subscriptionField = invoice.subscription;
-                if (typeof subscriptionField !== 'string') break;
-                const subscriptionId = subscriptionField;
-                const sub = await stripe.subscriptions.retrieve(subscriptionId) as any;
-                const endDate = new Date(sub.current_period_end * 1000);
+                const subscriptionId = typeof invoice.subscription === 'string' ? invoice.subscription : null;
+                if (!subscriptionId) break;
+
+                const sub = await stripe.subscriptions.retrieve(subscriptionId);
+                const endDate = new Date((sub as any).current_period_end * 1000);
+
                 await User.findOneAndUpdate(
                     { subscriptionId },
                     { subscriptionEndDate: endDate }
@@ -105,7 +111,11 @@ export async function POST(req: NextRequest) {
                 }
 
                 const update: any = { isSubscriptionCanceled: cancelAtPeriodEnd };
-                if (newPlan) update.subscriptionPlan = newPlan;
+                if (newPlan) {
+                    update.subscriptionPlan = newPlan;
+                    update.limitKeywords = getKeywordLimit(newPlan);
+                    update.limitScanMap = getScanMapBaseLimit(newPlan);
+                }
 
                 await User.findOneAndUpdate({ subscriptionId }, update);
                 break;
@@ -122,6 +132,8 @@ export async function POST(req: NextRequest) {
                         subscriptionStartDate: null,
                         subscriptionEndDate: null,
                         isSubscriptionCanceled: false,
+                        limitKeywords: 0,
+                        limitScanMap: 0,
                     }
                 );
                 break;

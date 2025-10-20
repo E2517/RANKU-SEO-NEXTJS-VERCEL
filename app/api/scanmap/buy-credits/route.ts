@@ -41,8 +41,8 @@ export async function POST(req: Request) {
             mode: 'payment',
             payment_method_types: ['card'],
             line_items: [{ price: priceId, quantity: 1 }],
-            success_url: `${process.env.NEXT_PUBLIC_APP_URL}/payment-success?session_id={CHECKOUT_SESSION_ID}`,
-            cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/profile`,
+            success_url: `${process.env.APP_URL}/payment-success?session_id={CHECKOUT_SESSION_ID}`,
+            cancel_url: `${process.env.APP_URL}/profile`,
             client_reference_id: userId,
             metadata: {
                 credits: amount.toString(),

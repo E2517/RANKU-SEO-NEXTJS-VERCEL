@@ -15,20 +15,22 @@ export function normalizeDomain(url: string): string | null {
     }
 }
 
-export function getKeywordLimit(subscriptionPlan: string): number {
-    switch (subscriptionPlan) {
-        case 'Basico': return 250;
-        case 'Pro': return 500;
-        case 'Ultra': return 7;
-        default: return 0;
-    }
+export function getKeywordLimit(plan: string): number {
+    const limits: Record<string, number> = {
+        Gratuito: 0,
+        Basico: 250,
+        Pro: 500,
+        Ultra: 1000,
+    };
+    return limits[plan] || 0;
 }
 
-export function getScanMapBaseLimit(subscriptionPlan: string): number {
-    switch (subscriptionPlan) {
-        case 'Basico': return 5;
-        case 'Pro': return 10;
-        case 'Ultra': return 25;
-        default: return 0;
-    }
+export function getScanMapBaseLimit(plan: string): number {
+    const limits: Record<string, number> = {
+        Gratuito: 0,
+        Basico: 5,
+        Pro: 15,
+        Ultra: 25,
+    };
+    return limits[plan] || 0;
 }

@@ -12,6 +12,7 @@ import ScanMapSection from '@/components/dashboard/ScanMapSection';
 import KeywordCounter from '@/components/dashboard/KeywordCounter';
 import StatsSection from '@/components/dashboard/StatsSection';
 import ProfileSection from '@/components/dashboard/ProfileSection';
+import AdminPanel from '@/components/dashboard/AdminPanel';
 import './dashboard.css';
 
 export default function DashboardPage() {
@@ -53,7 +54,7 @@ export default function DashboardPage() {
                 window.location.href = '/contacto.html';
                 return null;
             case 'admin-panel':
-                window.location.href = '/admin.html';
+                return <AdminPanel />;
                 return null;
             default:
                 return <SearchForm />;

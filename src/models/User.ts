@@ -13,6 +13,7 @@ export interface IUser {
     stripeCustomerId?: string;
     isSubscriptionCanceled: boolean;
     role: 'admin' | 'user';
+    limitKeywords: number;
     limitScanMap: number;
     resetPasswordToken?: string;
     resetPasswordExpires?: Date;
@@ -48,6 +49,7 @@ const userSchema = new Schema<IUser, UserModel>(
         stripeCustomerId: String,
         isSubscriptionCanceled: { type: Boolean, default: false },
         role: { type: String, default: 'user', enum: ['admin', 'user'] },
+        limitKeywords: { type: Number, default: 0 },
         limitScanMap: { type: Number, default: 0 },
         resetPasswordToken: String,
         resetPasswordExpires: Date,
@@ -71,5 +73,4 @@ userSchema.methods.comparePassword = async function (
 };
 
 const User = (models.User as UserModel) || model<IUser, UserModel>('User', userSchema);
-
 export default User;
