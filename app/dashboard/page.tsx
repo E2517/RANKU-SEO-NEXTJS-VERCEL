@@ -92,7 +92,7 @@ export default function DashboardPage() {
                 </button>
                 <Link href="/dashboard" className="logo">
                     RANKU
-                    <Image src="/assets/ninja.png" alt="Ninja Ranku.es" className="logo-icon" width={20} height={20} />
+                    <Image src="/assets/ninja.png" alt="Ninja Ranku.es" className="logo-icon" width={35} height={24} />
                 </Link>
                 <div className="auth-buttons">
                     <form action="/api/auth/logout" method="post">

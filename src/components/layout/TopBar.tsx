@@ -9,7 +9,7 @@ export default function TopBar() {
         <Image
           src="/assets/ninja.png"
           alt="Ninja Ranku.es"
-          width={24}
+          width={35}
           height={24}
           className="logo-icon"
         />
