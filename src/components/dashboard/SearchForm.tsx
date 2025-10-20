@@ -1,0 +1,189 @@
+'use client';
+import { useState } from 'react';
+
+export default function SearchForm() {
+    const [formData, setFormData] = useState({
+        keywords: '',
+        domain: '',
+        location: '',
+        searchEngine: 'google',
+        devices: ['desktop'] as ('desktop' | 'mobile' | 'google_local')[],
+    });
+    const [message, setMessage] = useState<{ text: string; type: 'success' | 'error' } | null>(null);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+        const { name, value } = e.target;
+        if (name === 'devices') {
+            const currentDevices = formData.devices;
+            const device = value as 'desktop' | 'mobile' | 'google_local';
+            if (currentDevices.includes(device)) {
+                setFormData({
+                    ...formData,
+                    devices: currentDevices.filter(d => d !== device),
+                });
+            } else {
+                setFormData({
+                    ...formData,
+                    devices: [...currentDevices, device],
+                });
+            }
+        } else {
+            setFormData({
+                ...formData,
+                [name]: value,
+            });
+        }
+    };
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setMessage(null);
+        setIsSubmitting(true);
+
+        try {
+            const res = await fetch('/api/historial-busquedas', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    keywords: formData.keywords,
+                    domain: formData.domain,
+                    location: formData.location,
+                    searchEngine: formData.searchEngine,
+                    device: formData.devices,
+                }),
+            });
+            const data = await res.json();
+            if (data.success) {
+                setMessage({
+                    text: `${data.message} Puedes ir a la pestaña 'Dominios' para ver los resultados.`,
+                    type: 'success'
+                });
+            } else {
+                setMessage({ text: data.message, type: 'error' });
+            }
+        } catch (error) {
+            console.error('Error al enviar la búsqueda:', error);
+            setMessage({ text: 'Error de conexión con el servidor.', type: 'error' });
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
+
+    return (
+        <div style={{ background: '#fff', padding: '1.5rem', borderRadius: '0.75rem', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)', marginBottom: '1.5rem', border: '1px solid #e5e7eb' }}>
+            <h2 style={{ color: '#6c4ab6', fontSize: '1.5rem', fontWeight: '700', marginBottom: '1rem' }}>Realizar Búsqueda</h2>
+            <div style={{ marginBottom: '1.25rem' }}>
+                <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500', color: '#374151' }}>
+                    🔎 Descubre las palabras clave que posicionan tu dominio en cada ubicación
+                </label>
+            </div>
+            <form onSubmit={handleSubmit}>
+                <div style={{ marginBottom: '1.25rem' }}>
+                    <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500', color: '#374151' }}>
+                        Palabras Clave (una por línea o separadas por coma):
+                    </label>
+                    <textarea
+                        rows={5}
+                        placeholder="Ej: agencia marketing, mejor software SEO"
+                        value={formData.keywords}
+                        onChange={(e) => setFormData({ ...formData, keywords: e.target.value })}
+                        style={{ width: '100%', padding: '10px', border: '1px solid #d1d5db', borderRadius: '0.5rem', fontSize: '1rem' }}
+                    />
+                </div>
+                <div style={{ marginBottom: '1.25rem' }}>
+                    <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500', color: '#374151' }}>Dominio:</label>
+                    <input
+                        type="text"
+                        placeholder="Ej: miweb.com"
+                        value={formData.domain}
+                        onChange={(e) => setFormData({ ...formData, domain: e.target.value })}
+                        style={{ width: '100%', padding: '10px', border: '1px solid #d1d5db', borderRadius: '0.5rem', fontSize: '1rem' }}
+                    />
+                </div>
+                <div style={{ marginBottom: '1.25rem' }}>
+                    <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500', color: '#374151' }}>Localización:</label>
+                    <input
+                        type="text"
+                        placeholder="Ej: Madrid"
+                        value={formData.location}
+                        onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+                        style={{ width: '100%', padding: '10px', border: '1px solid #d1d5db', borderRadius: '0.5rem', fontSize: '1rem' }}
+                    />
+                </div>
+                <div style={{ marginBottom: '1.25rem' }}>
+                    <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500', color: '#374151' }}>Buscador:</label>
+                    <select
+                        value={formData.searchEngine}
+                        onChange={(e) => setFormData({ ...formData, searchEngine: e.target.value })}
+                        style={{ width: '100%', padding: '10px', border: '1px solid #d1d5db', borderRadius: '0.5rem', fontSize: '1rem' }}
+                    >
+                        <option value="google">Google</option>
+                    </select>
+                </div>
+                <div style={{ marginBottom: '1.25rem' }}>
+                    <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500', color: '#374151' }}>Dispositivos:</label><br />
+                    <label style={{ marginRight: '15px', cursor: 'pointer', fontWeight: '500', color: '#374151' }}>
+                        <input
+                            type="checkbox"
+                            name="devices"
+                            value="desktop"
+                            checked={formData.devices.includes('desktop')}
+                            onChange={handleInputChange}
+                            style={{ marginRight: '8px', transform: 'scale(1.3)', accentColor: '#6c4ab6' }}
+                        /> Desktop
+                    </label>
+                    <label style={{ marginRight: '15px', cursor: 'pointer', fontWeight: '500', color: '#374151' }}>
+                        <input
+                            type="checkbox"
+                            name="devices"
+                            value="mobile"
+                            checked={formData.devices.includes('mobile')}
+                            onChange={handleInputChange}
+                            style={{ marginRight: '8px', transform: 'scale(1.3)', accentColor: '#6c4ab6' }}
+                        /> Mobile
+                    </label>
+                    <label style={{ cursor: 'pointer', fontWeight: '500', color: '#374151' }}>
+                        <input
+                            type="checkbox"
+                            name="devices"
+                            value="google_local"
+                            checked={formData.devices.includes('google_local')}
+                            onChange={handleInputChange}
+                            style={{ marginRight: '8px', transform: 'scale(1.3)', accentColor: '#6c4ab6' }}
+                        /> Google Local
+                    </label>
+                </div>
+                <button
+                    type="submit"
+                    disabled={isSubmitting}
+                    style={{
+                        padding: '10px 18px',
+                        border: 'none',
+                        borderRadius: '0.5rem',
+                        cursor: 'pointer',
+                        fontSize: '1rem',
+                        fontWeight: '600',
+                        background: isSubmitting ? '#94a3b8' : 'linear-gradient(to right, #d64a6c, #c53a5d)',
+                        color: '#fff',
+                        boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
+                        marginRight: '8px'
+                    }}
+                >
+                    {isSubmitting ? 'Buscando...' : 'Añadir'}
+                </button>
+                {message && (
+                    <div
+                        style={{
+                            marginTop: '15px',
+                            color: message.type === 'success' ? '#10b981' : '#ef4444',
+                            fontWeight: '500'
+                        }}
+                    >
+                        {message.text}
+                    </div>
+                )}
+            </form>
+        </div>
+    );
+}

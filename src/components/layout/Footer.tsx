@@ -1,0 +1,48 @@
+import Link from 'next/link';
+
+export default function Footer() {
+  return (
+    <footer
+      style={{
+        marginTop: '30px',
+        padding: '20px',
+        borderTop: '1px solid var(--border-color)',
+        textAlign: 'center',
+        backgroundColor: '#f8f8f8',
+      }}
+    >
+      <p style={{ margin: '5px 0', color: '#666' }}>
+        &copy; 2025 | e2517dev@gmail.com. Todos los derechos reservados.
+      </p>
+      <p style={{ margin: '5px 0' }}>
+        <Link href="/aviso-legal" style={{ color: 'var(--secondary-color)', textDecoration: 'none', margin: '0 15px' }}>
+          Aviso Legal
+        </Link>
+        <Link href="/condiciones" style={{ color: 'var(--secondary-color)', textDecoration: 'none', margin: '0 15px' }}>
+          Condiciones de contratación
+        </Link>
+        <Link href="/contacto" style={{ color: 'var(--secondary-color)', textDecoration: 'none', margin: '0 15px' }}>
+          Contacto
+        </Link>
+      </p>
+      <div style={{ marginTop: '15px' }}>
+        <a
+          href="https://www.instagram.com/codecryptoaiguru"
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{ margin: '0 10px', color: '#b64aa4', fontSize: '1.5rem' }}
+        >
+          <i className="fab fa-instagram"></i>
+        </a>
+        <a
+          href="https://www.youtube.com/@e2517dev"
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{ margin: '0 10px', color: '#d64a6c', fontSize: '1.5rem' }}
+        >
+          <i className="fab fa-youtube"></i>
+        </a>
+      </div>
+    </footer>
+  );
+}
