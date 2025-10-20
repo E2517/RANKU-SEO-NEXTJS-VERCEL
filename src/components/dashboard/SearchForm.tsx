@@ -57,7 +57,7 @@ export default function SearchForm() {
             const data = await res.json();
 
             if (data.success) {
-                showToast.success(`${data.message} Puedes ir a la pestaña 'Dominios' para ver los resultados.`, {
+                showToast.success(`${data.message} Puedes ir a la pestaña 'Dominios o Estadísticas' para ver los resultados.`, {
                     duration: 5000,
                     position: 'bottom-center',
                     transition: 'topBounce',
