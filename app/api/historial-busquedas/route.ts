@@ -2,7 +2,6 @@ import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import User from '@/models/User';
 import SearchResult from '@/models/SearchResult';
-import LocalVisibilityCampaign from '@/models/LocalVisibilityCampaign';
 import { connectDB } from '@/lib/mongoose';
 import { normalizeDomain, getKeywordLimit } from '@/lib/utils';
 import axios from 'axios';
@@ -43,18 +42,12 @@ export async function POST(req: Request) {
         }, { status: 403 });
     }
 
-    const keywordSearches = await SearchResult.countDocuments({
+    const totalKeywords = await SearchResult.countDocuments({
         userId: user._id,
         tipoBusqueda: 'palabraClave'
     });
 
-    const scanMapCampaigns = await LocalVisibilityCampaign.countDocuments({
-        userId: user._id
-    });
-
-    const totalUsed = keywordSearches + scanMapCampaigns;
-
-    if (totalUsed >= limit) {
+    if (totalKeywords >= limit) {
         return NextResponse.json({
             success: false,
             message: 'Has alcanzado el límite de búsquedas permitidas en tu plan actual.',
@@ -79,7 +72,7 @@ export async function POST(req: Request) {
         return NextResponse.json({ success: false, message: 'No se encontraron palabras clave válidas.' }, { status: 400 });
     }
 
-    const remaining = limit - totalUsed;
+    const remaining = limit - totalKeywords;
     if (keywordList.length > remaining) {
         return NextResponse.json({
             success: false,
