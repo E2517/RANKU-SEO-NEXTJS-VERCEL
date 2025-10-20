@@ -84,9 +84,10 @@ export default function RegisterPage() {
                     <div className="terms">
                         <input type="checkbox" id="terms" name="terms" required />
                         <label htmlFor="terms">
-                            <Link href="/legal#condiciones-contratacion" style={{ color: 'var(--secondary-color)', textDecoration: 'none', margin: '0 15px' }}>
+                            <Link href="/legal#condiciones-contratacion">
                                 Acepto las Condiciones de contratación
-                            </Link>                        </label>
+                            </Link>
+                        </label>
                     </div>
 
                     <button
@@ -102,13 +103,14 @@ export default function RegisterPage() {
                     <span>O regístrate con</span>
                 </div>
 
-                <button className="google-button">
-                    <Image
-                        src="/assets/google-icon.webp"
-                        alt="Google"
-                        width={20}
-                        height={20}
-                    />
+                <button
+                    className="google-button"
+                    onClick={(e) => {
+                        e.preventDefault();
+                        window.location.href = '/api/auth/google';
+                    }}
+                >
+                    <Image src="/assets/google-icon.webp" alt="Google" width={20} height={20} />
                     Registrarme con Google
                 </button>
 
@@ -122,3 +124,4 @@ export default function RegisterPage() {
         </div>
     );
 }
+
