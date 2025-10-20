@@ -3,7 +3,6 @@ import { connectDB } from '@/lib/mongoose';
 import SearchResult from '@/models/SearchResult';
 import User from '@/models/User';
 import { normalizeDomain } from '@/lib/utils';
-import { getKeywordLimit } from '@/lib/utils';
 import { cookies } from 'next/headers';
 import axios from 'axios';
 
@@ -99,23 +98,7 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ success: false, message: 'Usuario no encontrado.' }, { status: 404 });
     }
 
-    const userId = user._id.toString();
-    const limit = getKeywordLimit(user.subscriptionPlan);
-    if (limit === 0) {
-        return NextResponse.json({
-            success: false,
-            message: 'Acceso restringido. Actualiza tu plan para seguir usando el servicio.',
-            actionText: 'Ir a Perfil y Suscripción',
-            redirectTo: '/dashboard?tab=profile-section'
-        }, { status: 403 });
-    }
-
-    const totalKeywords = await SearchResult.countDocuments({
-        userId: user._id,
-        tipoBusqueda: 'palabraClave'
-    });
-
-    if (totalKeywords >= limit) {
+    if (user.limitKeywords <= 0) {
         return NextResponse.json({
             success: false,
             message: 'Has alcanzado el límite de búsquedas permitidas en tu plan actual.',
@@ -125,8 +108,8 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json();
-    const { keyword, location, domain, distanceFilter } = body;
-    console.log('📝 Parámetros recibidos:', { keyword, location, domain, distanceFilter });
+    const { keyword, location, domain } = body;
+    console.log('📝 Parámetros recibidos:', { keyword, location, domain });
     if (!keyword || !location) {
         return NextResponse.json(
             { success: false, message: 'Faltan palabra clave o localización.' },
@@ -221,7 +204,7 @@ export async function POST(req: NextRequest) {
 
         if (normalizedInputDomain) {
             const updateFilter = {
-                userId: new (require('mongoose').Types.ObjectId)(userId),
+                userId: new (require('mongoose').Types.ObjectId)(userIdFromCookie),
                 palabraClave: keyword,
                 dominioFiltrado: normalizedInputDomain,
                 dispositivo: 'google_local',
@@ -233,7 +216,7 @@ export async function POST(req: NextRequest) {
 
             const now = new Date();
             const newSetData: any = {
-                userId: new (require('mongoose').Types.ObjectId)(userId),
+                userId: new (require('mongoose').Types.ObjectId)(userIdFromCookie),
                 buscador: 'google_maps',
                 dispositivo: 'google_local',
                 posicion: domainPosition,
@@ -261,7 +244,7 @@ export async function POST(req: NextRequest) {
 
             if (domainPosition > 0) {
                 const comparison = await getComparisonData(
-                    userId,
+                    userIdFromCookie,
                     keyword,
                     normalizedInputDomain,
                     domainPosition,
@@ -276,75 +259,20 @@ export async function POST(req: NextRequest) {
             }
         }
 
-        if (distanceFilter && domainResults.length > 0 && domainResults[0].lat != null && domainResults[0].lng != null) {
-            const domainLocation = domainResults[0];
-            const filteredResults = results.filter((place: any) => {
-                if (place.lat == null || place.lng == null) return false;
-                const distance = calculateDistance(
-                    domainLocation.lat,
-                    domainLocation.lng,
-                    place.lat,
-                    place.lng
-                );
-                return distance <= distanceFilter;
-            });
-            const recalculatedResults = filteredResults.map((place: any, index: number) => ({
-                ...place,
-                position: index + 1,
-            }));
-            const filteredTotal = recalculatedResults.length;
-            const filteredDomainResults = normalizedInputDomain
-                ? recalculatedResults.filter((p: any) => p.domain && p.domain === normalizedInputDomain)
-                : [];
-            const filteredDomainPosition = filteredDomainResults.length > 0 ? filteredDomainResults[0].position : 0;
-            const filteredDomainPositionText =
-                filteredDomainPosition > 0 ? `${filteredDomainPosition}/${filteredTotal}` : 'No encontrado';
-            const filteredAvgPosition =
-                filteredTotal > 0
-                    ? recalculatedResults.reduce((sum: number, p: any) => sum + p.position, 0) / filteredTotal
-                    : 0;
-            const filteredAvgRating =
-                filteredTotal > 0
-                    ? recalculatedResults.reduce((sum: number, p: any) => sum + (p.rating || 0), 0) / filteredTotal
-                    : 0;
-            const filteredAvgReviews =
-                filteredTotal > 0
-                    ? recalculatedResults.reduce((sum: number, p: any) => sum + (p.reviews || 0), 0) / filteredTotal
-                    : 0;
-            let filteredIsBetterThanCompetitors: any = null;
-            if (filteredDomainResults.length > 0) {
-                const filteredDomainRating = filteredDomainResults[0].rating || 0;
-                const filteredDomainReviews = filteredDomainResults[0].reviews || 0;
-                filteredIsBetterThanCompetitors = {
-                    rating: filteredDomainRating > filteredAvgRating,
-                    reviews: filteredDomainReviews > filteredAvgReviews,
-                };
-            }
-            return NextResponse.json({
-                success: true,
-                results: recalculatedResults,
-                domainPosition: filteredDomainPosition,
-                domainPositionText: filteredDomainPositionText,
-                avgPosition: filteredAvgPosition,
-                avgRating: filteredAvgRating,
-                avgReviews: filteredAvgReviews,
-                isBetterThanCompetitors: filteredIsBetterThanCompetitors,
-                totalResults: filteredTotal,
-                distanceFilter,
-            });
-        } else {
-            return NextResponse.json({
-                success: true,
-                results,
-                domainPosition,
-                domainPositionText,
-                avgPosition,
-                avgRating,
-                avgReviews,
-                isBetterThanCompetitors,
-                totalResults,
-            });
-        }
+        user.limitKeywords = Math.max(0, user.limitKeywords - 1);
+        await user.save();
+
+        return NextResponse.json({
+            success: true,
+            results,
+            domainPosition,
+            domainPositionText,
+            avgPosition,
+            avgRating,
+            avgReviews,
+            isBetterThanCompetitors,
+            totalResults,
+        });
     } catch (error: any) {
         console.error('❌ Error en /api/rankmap:', error.response?.data || error.message || error);
         return NextResponse.json(

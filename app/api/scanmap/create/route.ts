@@ -21,41 +21,6 @@ async function geocodeAddress(address: string) {
     return { lat, lng };
 }
 
-function getScanMapLimit(subscriptionPlan: string): number {
-    if (subscriptionPlan === 'Basico') return 5;
-    if (subscriptionPlan === 'Pro') return 10;
-    if (subscriptionPlan === 'Ultra') return 15;
-    return 0;
-}
-
-function getStartOfCurrentBillingCycle(user: any): Date {
-    if (user.subscriptionId && !user.isSubscriptionCanceled && user.subscriptionStartDate) {
-        return new Date(user.subscriptionStartDate);
-    }
-    return new Date(user.createdAt || Date.now());
-}
-
-async function checkScanMapLimit(userId: string) {
-    const user = await User.findById(userId);
-    if (!user) throw new Error('Usuario no encontrado');
-    const baseLimit = getScanMapLimit(user.subscriptionPlan);
-    const cycleStart = getStartOfCurrentBillingCycle(user);
-    const usedThisCycle = await LocalVisibilityCampaign.countDocuments({
-        userId,
-        createdAt: { $gte: cycleStart }
-    });
-    if (usedThisCycle < baseLimit) return true;
-    const totalUsedEver = await LocalVisibilityCampaign.countDocuments({ userId });
-    const userCreatedAt = user.createdAt ? new Date(user.createdAt) : new Date(0);
-    const baseLimitEver = await LocalVisibilityCampaign.countDocuments({
-        userId,
-        createdAt: { $gte: userCreatedAt }
-    });
-    const creditsUsed = Math.max(0, totalUsedEver - baseLimitEver);
-    if (creditsUsed < user.limitScanMap) return true;
-    return false;
-}
-
 export async function POST(req: NextRequest) {
     const cookieStore = await cookies();
     const userIdFromCookie = cookieStore.get('user_id')?.value;
@@ -67,8 +32,7 @@ export async function POST(req: NextRequest) {
     if (!user) {
         return NextResponse.json({ success: false, message: 'Usuario no encontrado.' }, { status: 404 });
     }
-    const hasCredits = await checkScanMapLimit(userIdFromCookie);
-    if (!hasCredits) {
+    if (user.limitScanMap <= 0) {
         return NextResponse.json({ success: false, message: 'Límite de ScanMap alcanzado.' }, { status: 403 });
     }
     const body = await req.json();
@@ -88,6 +52,8 @@ export async function POST(req: NextRequest) {
             status: 'processing'
         });
         await campaign.save();
+        user.limitScanMap = Math.max(0, user.limitScanMap - 1);
+        await user.save();
         const campaignId = campaign._id.toString();
         console.log('🚀 ScanMap iniciado. ID:', campaignId, 'Dominio:', domain, 'Keyword:', keyword);
 

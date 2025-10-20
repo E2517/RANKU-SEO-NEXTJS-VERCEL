@@ -3,7 +3,7 @@ import { cookies } from 'next/headers';
 import User from '@/models/User';
 import SearchResult from '@/models/SearchResult';
 import { connectDB } from '@/lib/mongoose';
-import { normalizeDomain, getKeywordLimit } from '@/lib/utils';
+import { normalizeDomain } from '@/lib/utils';
 import axios from 'axios';
 
 const SERPAPI_API_KEY = process.env.SERPAPI_API_KEY;
@@ -32,22 +32,7 @@ export async function POST(req: Request) {
         return NextResponse.json({ success: false, message: 'Usuario no encontrado.' }, { status: 404 });
     }
 
-    const limit = getKeywordLimit(user.subscriptionPlan);
-    if (limit === 0) {
-        return NextResponse.json({
-            success: false,
-            message: 'Acceso restringido. Actualiza tu plan para seguir usando el servicio.',
-            actionText: 'Ir a Perfil y Suscripción',
-            redirectTo: '/dashboard?tab=profile-section'
-        }, { status: 403 });
-    }
-
-    const totalKeywords = await SearchResult.countDocuments({
-        userId: user._id,
-        tipoBusqueda: 'palabraClave'
-    });
-
-    if (totalKeywords >= limit) {
+    if (user.limitKeywords <= 0) {
         return NextResponse.json({
             success: false,
             message: 'Has alcanzado el límite de búsquedas permitidas en tu plan actual.',
@@ -72,8 +57,7 @@ export async function POST(req: Request) {
         return NextResponse.json({ success: false, message: 'No se encontraron palabras clave válidas.' }, { status: 400 });
     }
 
-    const remaining = limit - totalKeywords;
-    if (keywordList.length > remaining) {
+    if (keywordList.length > user.limitKeywords) {
         return NextResponse.json({
             success: false,
             message: 'No puedes realizar esta búsqueda: excede tu límite de búsquedas disponibles.',
@@ -308,6 +292,12 @@ export async function POST(req: Request) {
                 success: false,
                 message: 'No se encontró el dominio en los resultados de búsqueda para ninguna de las combinaciones.'
             });
+        }
+
+        const keywordsUsed = allResults.length;
+        if (keywordsUsed > 0) {
+            user.limitKeywords = Math.max(0, user.limitKeywords - keywordsUsed);
+            await user.save();
         }
 
         return NextResponse.json({
