@@ -12,6 +12,7 @@ export default function TopBar() {
           width={35}
           height={24}
           className="logo-icon"
+          style={{ height: 'auto' }} 
         />
       </Link>
       <div className="auth-buttons">

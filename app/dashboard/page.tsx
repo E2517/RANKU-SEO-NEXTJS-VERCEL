@@ -92,9 +92,12 @@ export default function DashboardPage() {
                 </button>
                 <Link href="/dashboard" className="logo">
                     RANKU
-                    <Image src="/assets/ninja.png" alt="Ninja Ranku.es" className="logo-icon" width={35} height={24} />
+                    <Image src="/assets/ninja.png" alt="Ninja Ranku.es" className="logo-icon"
+                        width={35}
+                        height={24}
+                        style={{ height: 'auto' }} />
                 </Link>
-                <div className="auth-buttons">
+                <div className="auth-buttons-mobile">
                     <form action="/api/auth/logout" method="post">
                         <button type="submit" className="logout-button">Cerrar Sesión</button>
                     </form>
