@@ -84,8 +84,9 @@ export default function RegisterPage() {
                     <div className="terms">
                         <input type="checkbox" id="terms" name="terms" required />
                         <label htmlFor="terms">
-                            Acepto los <Link href="/aviso-legal">términos y condiciones</Link>
-                        </label>
+                            <Link href="/legal#condiciones-contratacion" style={{ color: 'var(--secondary-color)', textDecoration: 'none', margin: '0 15px' }}>
+                                Acepto las Condiciones de contratación
+                            </Link>                        </label>
                     </div>
 
                     <button
