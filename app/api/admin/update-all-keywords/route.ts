@@ -4,6 +4,7 @@ import User from '@/models/User';
 import { connectDB } from '@/lib/mongoose';
 import { normalizeDomain } from '@/lib/utils';
 import axios from 'axios';
+import { cookies } from 'next/headers';
 
 const SERPAPI_API_KEY = process.env.SERPAPI_API_KEY;
 
@@ -17,7 +18,19 @@ interface SerpApiResponse {
 }
 
 export async function GET() {
+    const cookieStore = await cookies();
+    const userId = cookieStore.get('user_id')?.value;
+
+    if (!userId) {
+        return NextResponse.json({ success: false, message: 'No autenticado.' }, { status: 401 });
+    }
+
     await connectDB();
+
+    const user = await User.findById(userId);
+    if (!user || user.role !== 'admin') {
+        return NextResponse.json({ success: false, message: 'Acceso denegado.' }, { status: 403 });
+    }
 
     if (!SERPAPI_API_KEY) {
         return NextResponse.json({ success: false, message: 'SerpAPI no configurada.' }, { status: 500 });
@@ -176,7 +189,7 @@ export async function GET() {
                     for (let i = 0; i < organic.length; i++) {
                         const result = organic[i];
                         if (result.link) {
-                            const resultDomain = normalizeDomain(result.link); // <-- Aquí podría fallar
+                            const resultDomain = normalizeDomain(result.link);
                             if (resultDomain === dominioFiltrado) {
                                 position = start + (result.position || i + 1);
                                 foundDomain = resultDomain;

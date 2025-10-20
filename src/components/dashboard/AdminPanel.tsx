@@ -34,14 +34,17 @@ export default function AdminPanel() {
                     return;
                 }
                 if (!res.ok) {
-                    throw new Error('Error al cargar usuarios');
+                    throw new Error(`Error HTTP: ${res.status}`);
                 }
                 const data = await res.json();
-                if (data.success) {
+                console.log("Respuesta del servidor:", data); // <-- Para depurar
+
+                if (data && typeof data === 'object' && data.success === true && Array.isArray(data.users)) {
                     const sortedUsers = data.users.sort((a: User, b: User) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
                     setUsers(sortedUsers);
                 } else {
-                    showToast.error(data.message || 'Error desconocido al cargar usuarios', {
+                    console.error("Formato inesperado de respuesta:", data);
+                    showToast.error('La respuesta del servidor no es válida. Formato incorrecto.', {
                         duration: 4000,
                         position: 'top-center',
                         transition: 'topBounce',
@@ -49,6 +52,7 @@ export default function AdminPanel() {
                     });
                 }
             } catch (err: any) {
+                console.error("Error al cargar usuarios:", err);
                 showToast.error(err.message || 'Error de red al cargar usuarios', {
                     duration: 4000,
                     position: 'top-center',
