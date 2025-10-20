@@ -13,6 +13,7 @@ import KeywordCounter from '@/components/dashboard/KeywordCounter';
 import StatsSection from '@/components/dashboard/StatsSection';
 import ProfileSection from '@/components/dashboard/ProfileSection';
 import AdminPanel from '@/components/dashboard/AdminPanel';
+import Contact from '@/components/dashboard/Contact';
 import './dashboard.css';
 
 export default function DashboardPage() {
@@ -74,7 +75,7 @@ export default function DashboardPage() {
             case 'profile-section':
                 return <ProfileSection />;
             case 'contact-section':
-                window.location.href = '/contacto.html';
+                return <Contact />;
                 return null;
             case 'admin-panel':
                 return isAdmin ? <AdminPanel /> : <div>No tienes permisos para ver esta sección.</div>;
