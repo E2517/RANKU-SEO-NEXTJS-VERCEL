@@ -15,13 +15,13 @@ export default function Footer() {
         &copy; 2025 | e2517dev@gmail.com. Todos los derechos reservados.
       </p>
       <p style={{ margin: '5px 0' }}>
-        <Link href="/aviso-legal" style={{ color: 'var(--secondary-color)', textDecoration: 'none', margin: '0 15px' }}>
+        <Link href="/legal#aviso-legal" style={{ color: 'var(--secondary-color)', textDecoration: 'none', margin: '0 15px' }}>
           Aviso Legal
         </Link>
-        <Link href="/condiciones" style={{ color: 'var(--secondary-color)', textDecoration: 'none', margin: '0 15px' }}>
+        <Link href="/legal#condiciones-contratacion" style={{ color: 'var(--secondary-color)', textDecoration: 'none', margin: '0 15px' }}>
           Condiciones de contratación
         </Link>
-        <Link href="/contacto" style={{ color: 'var(--secondary-color)', textDecoration: 'none', margin: '0 15px' }}>
+        <Link href="/legal#contacto" style={{ color: 'var(--secondary-color)', textDecoration: 'none', margin: '0 15px' }}>
           Contacto
         </Link>
       </p>
