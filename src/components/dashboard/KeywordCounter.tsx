@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import styles from './KeywordCounter.module.css';
+import { showToast } from 'nextjs-toast-notify';
 
 export default function KeywordCounter() {
     const [records, setRecords] = useState<any[]>([]);
@@ -16,11 +17,21 @@ export default function KeywordCounter() {
             if (data.success) {
                 setRecords(data.records);
             } else {
-                alert('Error: ' + (data.message || 'No se pudo cargar el historial.'));
+                showToast.error('Error: ' + (data.message || 'No se pudo cargar el historial.'), {
+                    duration: 4000,
+                    position: 'top-center',
+                    transition: 'topBounce',
+                    sound: true,
+                });
             }
         } catch (err) {
             console.error(err);
-            alert('Error de red al cargar historial.');
+            showToast.error('Error de red al cargar historial.', {
+                duration: 4000,
+                position: 'top-center',
+                transition: 'topBounce',
+                sound: true,
+            });
         } finally {
             setLoading(false);
         }
@@ -33,7 +44,12 @@ export default function KeywordCounter() {
             await fetch(`/api/keywords?id=${encodeURIComponent(id)}`, { method: 'DELETE' });
             setRecords(records.filter(r => r._id !== id));
         } catch (err) {
-            alert('Error al eliminar.');
+            showToast.error('Error al eliminar.', {
+                duration: 4000,
+                position: 'top-center',
+                transition: 'topBounce',
+                sound: true,
+            });
         } finally {
             setDeleting(false);
         }
@@ -46,7 +62,12 @@ export default function KeywordCounter() {
             await fetch('/api/keywords?all=true', { method: 'DELETE' });
             setRecords([]);
         } catch (err) {
-            alert('Error al eliminar todo.');
+            showToast.error('Error al eliminar todo.', {
+                duration: 4000,
+                position: 'top-center',
+                transition: 'topBounce',
+                sound: true,
+            });
         } finally {
             setDeleting(false);
         }

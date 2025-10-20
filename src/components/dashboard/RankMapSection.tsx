@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import styles from './RankMapSection.module.css';
 import 'leaflet/dist/leaflet.css';
+import { showToast } from 'nextjs-toast-notify';
 
 const normalizeDomain = (url: string): string => {
     if (!url) return '';
@@ -143,21 +144,16 @@ export default function RankMapSection() {
         e.preventDefault();
         if (isProcessing) return;
         if (!keyword.trim() || !location.trim()) {
-            setError('Introduce palabra clave y localización.');
+            showToast.error('Introduce palabra clave y localización.', {
+                duration: 4000,
+                position: 'top-center',
+                transition: 'topBounce',
+                sound: true,
+            });
             return;
         }
         setError('');
         setIsProcessing(true);
-        const messageEl = document.getElementById('rankmapMessage');
-        const statsEl = document.getElementById('rankmapStats');
-        const container = document.getElementById('rankmapContainer');
-        const placeholder = document.getElementById('rankmapPlaceholder');
-        if (messageEl) messageEl.textContent = 'Buscando...';
-        if (statsEl) statsEl.style.display = 'none';
-        if (container && placeholder) {
-            container.style.display = 'block';
-            placeholder.style.display = 'none';
-        }
 
         try {
             const res = await fetch('/api/rankmap', {
@@ -172,14 +168,26 @@ export default function RankMapSection() {
             });
             const data = await res.json();
             if (!data.success || !data.results?.length) {
-                if (messageEl) messageEl.textContent = data.message || 'Sin resultados.';
+                showToast.info(data.message || 'Sin resultados.', {
+                    duration: 4000,
+                    position: 'top-center',
+                    transition: 'topBounce',
+                    sound: true,
+                });
+                const container = document.getElementById('rankmapContainer');
+                const placeholder = document.getElementById('rankmapPlaceholder');
                 if (container && placeholder) {
                     placeholder.style.display = 'flex';
                 }
                 return;
             }
-            if (messageEl)
-                messageEl.textContent = `Mostrando ${data.totalResults} resultados.${data.distanceFilter ? ` Filtrados a ${data.distanceFilter} metros.` : ''}`;
+            showToast.success(`Mostrando ${data.totalResults} resultados.${data.distanceFilter ? ` Filtrados a ${data.distanceFilter} metros.` : ''}`, {
+                duration: 4000,
+                position: 'top-center',
+                transition: 'topBounce',
+                sound: true,
+            });
+            const statsEl = document.getElementById('rankmapStats');
             if (statsEl) statsEl.style.display = 'block';
             document.getElementById('domainPositionText')!.textContent = data.domainPositionText;
             document.getElementById('avgPosition')!.textContent = data.avgPosition.toFixed(2);
@@ -217,13 +225,24 @@ export default function RankMapSection() {
                 setMapData({ lat: mapCenterLat, lng: mapCenterLng, results: data.results });
             } else {
                 console.error("No se pudo obtener coordenadas válidas para centrar el mapa.");
-                if (messageEl) messageEl.textContent = 'Error: No se pudo geolocalizar el punto central del mapa.';
+                showToast.error('Error: No se pudo geolocalizar el punto central del mapa.', {
+                    duration: 4000,
+                    position: 'top-center',
+                    transition: 'topBounce',
+                    sound: true,
+                });
             }
 
         } catch (err) {
             console.error(err);
-            const msgEl = document.getElementById('rankmapMessage');
-            if (msgEl) msgEl.textContent = 'Error al cargar resultados.';
+            showToast.error('Error al cargar resultados.', {
+                duration: 4000,
+                position: 'top-center',
+                transition: 'topBounce',
+                sound: true,
+            });
+            const container = document.getElementById('rankmapContainer');
+            const placeholder = document.getElementById('rankmapPlaceholder');
             if (container && placeholder) {
                 placeholder.style.display = 'flex';
             }

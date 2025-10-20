@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import styles from './StatsSection.module.css';
+import { showToast } from 'nextjs-toast-notify';
 
 export default function StatsSection() {
     const [stats, setStats] = useState<any>(null);
@@ -108,16 +109,31 @@ export default function StatsSection() {
                 const errorText = await response.text();
                 try {
                     const errorJson = JSON.parse(errorText);
-                    alert('Error: ' + (errorJson.message || 'No se pudo generar el informe.'));
+                    showToast.error('Error: ' + (errorJson.message || 'No se pudo generar el informe.'), {
+                        duration: 4000,
+                        position: 'top-center',
+                        transition: 'topBounce',
+                        sound: true,
+                    });
                 } catch {
-                    alert('Error: El servidor devolvió una respuesta no válida.');
+                    showToast.error('Error: El servidor devolvió una respuesta no válida.', {
+                        duration: 4000,
+                        position: 'top-center',
+                        transition: 'topBounce',
+                        sound: true,
+                    });
                 }
                 return;
             }
 
             const blob = await response.blob();
             if (blob.size === 0) {
-                alert('Error: El archivo generado está vacío.');
+                showToast.error('Error: El archivo generado está vacío.', {
+                    duration: 4000,
+                    position: 'top-center',
+                    transition: 'topBounce',
+                    sound: true,
+                });
                 return;
             }
 
@@ -131,13 +147,23 @@ export default function StatsSection() {
             window.URL.revokeObjectURL(downloadUrl);
         } catch (err) {
             console.error('Error al descargar Excel:', err);
-            alert('Error de red al generar el informe.');
+            showToast.error('Error de red al generar el informe.', {
+                duration: 4000,
+                position: 'top-center',
+                transition: 'topBounce',
+                sound: true,
+            });
         }
     };
 
     const handleExportPdf = async () => {
         if (!domainFilter) {
-            alert('Selecciona un dominio para generar el informe PDF.');
+            showToast.error('Selecciona un dominio para generar el informe PDF.', {
+                duration: 4000,
+                position: 'top-center',
+                transition: 'topBounce',
+                sound: true,
+            });
             return;
         }
 
@@ -147,7 +173,12 @@ export default function StatsSection() {
         if (selectedDevices.google_local) devices.push('google_local');
 
         if (devices.length === 0) {
-            alert('Selecciona al menos un dispositivo.');
+            showToast.error('Selecciona al menos un dispositivo.', {
+                duration: 4000,
+                position: 'top-center',
+                transition: 'topBounce',
+                sound: true,
+            });
             return;
         }
 
@@ -164,16 +195,31 @@ export default function StatsSection() {
                 const errorText = await response.text();
                 try {
                     const errorJson = JSON.parse(errorText);
-                    alert('Error: ' + (errorJson.message || 'No se pudo generar el informe PDF.'));
+                    showToast.error('Error: ' + (errorJson.message || 'No se pudo generar el informe PDF.'), {
+                        duration: 4000,
+                        position: 'top-center',
+                        transition: 'topBounce',
+                        sound: true,
+                    });
                 } catch {
-                    alert('Error: El servidor devolvió una respuesta no válida.');
+                    showToast.error('Error: El servidor devolvió una respuesta no válida.', {
+                        duration: 4000,
+                        position: 'top-center',
+                        transition: 'topBounce',
+                        sound: true,
+                    });
                 }
                 return;
             }
 
             const blob = await response.blob();
             if (blob.size === 0) {
-                alert('Error: El archivo PDF generado está vacío.');
+                showToast.error('Error: El archivo PDF generado está vacío.', {
+                    duration: 4000,
+                    position: 'top-center',
+                    transition: 'topBounce',
+                    sound: true,
+                });
                 return;
             }
 
@@ -187,7 +233,12 @@ export default function StatsSection() {
             window.URL.revokeObjectURL(downloadUrl);
         } catch (err) {
             console.error('Error al descargar PDF:', err);
-            alert('Error de red al generar el informe PDF.');
+            showToast.error('Error de red al generar el informe PDF.', {
+                duration: 4000,
+                position: 'top-center',
+                transition: 'topBounce',
+                sound: true,
+            });
         }
     };
 

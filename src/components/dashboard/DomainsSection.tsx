@@ -1,10 +1,10 @@
 'use client';
 import { useState, useEffect } from 'react';
+import { showToast } from 'nextjs-toast-notify';
 
 export default function DomainsSection() {
     const [domain, setDomain] = useState('');
     const [keywordFilter, setKeywordFilter] = useState('');
-    const [message, setMessage] = useState<{ text: string; type: 'success' | 'error' } | null>(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [results, setResults] = useState<any[]>([]);
     const [domainOptions, setDomainOptions] = useState<string[]>([]);
@@ -33,15 +33,9 @@ export default function DomainsSection() {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         console.log('Formulario enviado. Dominio:', domain, 'Keyword:', keywordFilter);
-        setMessage(null);
         setResults([]);
         setIsSubmitting(true);
         try {
-            const params = new URLSearchParams({
-                tipo: 'dominioFiltrado',
-                valor: domain,
-            });
-            if (keywordFilter) params.append('keywordFilter', keywordFilter);
             const url = `/api/dominios?dominio=${encodeURIComponent(domain)}${keywordFilter ? `&keywordFilter=${encodeURIComponent(keywordFilter)}` : ''}`;
             console.log('Realizando fetch a:', url);
             const res = await fetch(url);
@@ -53,15 +47,30 @@ export default function DomainsSection() {
             console.log('Datos recibidos de historial-busquedas:', data);
             if (data.success) {
                 setResults(data.historial || []);
-                setMessage({ text: 'Resultados cargados.', type: 'success' });
+                showToast.success('Resultados cargados.', {
+                    duration: 4000,
+                    position: 'top-center',
+                    transition: 'topBounce',
+                    sound: true,
+                });
                 console.log('Resultados establecidos:', data.historial?.length || 0, 'registros');
             } else {
-                setMessage({ text: data.message, type: 'error' });
+                showToast.error(data.message, {
+                    duration: 4000,
+                    position: 'top-center',
+                    transition: 'topBounce',
+                    sound: true,
+                });
                 console.warn('API devolvió éxito: false en historial-busquedas:', data.message);
             }
         } catch (error) {
             console.error('Error al cargar historial:', error);
-            setMessage({ text: 'Error de conexión con el servidor.', type: 'error' });
+            showToast.error('Error de conexión con el servidor.', {
+                duration: 4000,
+                position: 'top-center',
+                transition: 'topBounce',
+                sound: true,
+            });
         } finally {
             setIsSubmitting(false);
             console.log('Finalizada solicitud de historial');
@@ -131,17 +140,6 @@ export default function DomainsSection() {
                 >
                     {isSubmitting ? 'Cargando...' : 'Cargar'}
                 </button>
-                {message && (
-                    <div
-                        style={{
-                            marginTop: '15px',
-                            color: message.type === 'success' ? '#10b981' : '#ef4444',
-                            fontWeight: '500'
-                        }}
-                    >
-                        {message.text}
-                    </div>
-                )}
             </form>
             {results.length > 0 && (
                 <div style={{ marginTop: '1.5rem', overflowX: 'auto', borderRadius: '0.75rem', border: '1px solid #e5e7eb', boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)' }}>

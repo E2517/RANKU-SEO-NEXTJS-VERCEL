@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import styles from './ScanMapSection.module.css';
 import 'leaflet/dist/leaflet.css';
+import { showToast } from 'nextjs-toast-notify';
 
 export default function ScanMapSection() {
     const [keyword, setKeyword] = useState('');
@@ -20,7 +21,12 @@ export default function ScanMapSection() {
         e.preventDefault();
         if (isProcessing) return;
         if (!keyword.trim() || !domain.trim() || !address.trim()) {
-            alert('Completa todos los campos.');
+            showToast.error('Completa todos los campos.', {
+                duration: 4000,
+                position: 'top-center',
+                transition: 'topBounce',
+                sound: true,
+            });
             return;
         }
         setIsProcessing(true);
@@ -38,14 +44,24 @@ export default function ScanMapSection() {
             });
             const data = await res.json();
             if (!data.success) {
-                alert(data.message || 'Error al iniciar.');
+                showToast.error(data.message || 'Error al iniciar.', {
+                    duration: 4000,
+                    position: 'top-center',
+                    transition: 'topBounce',
+                    sound: true,
+                });
                 return;
             }
             setCampaignId(data.campaignId);
             setShowResults(true);
         } catch (err) {
             console.error(err);
-            alert('Error de conexión.');
+            showToast.error('Error de conexión.', {
+                duration: 4000,
+                position: 'top-center',
+                transition: 'topBounce',
+                sound: true,
+            });
         } finally {
             setIsProcessing(false);
         }

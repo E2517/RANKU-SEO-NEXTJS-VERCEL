@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import styles from './ProfileSection.module.css';
 import { getKeywordLimit, getScanMapBaseLimit } from '@/lib/utils';
+import { showToast } from 'nextjs-toast-notify';
 
 export default function ProfileSection() {
     const [user, setUser] = useState<any>(null);
@@ -69,7 +70,12 @@ export default function ProfileSection() {
     }, [user]);
 
     const handlePlanClick = (plan: string) => {
-        alert(`Redirigiendo a la suscripción del plan ${plan}...`);
+        showToast.info(`Redirigiendo a la suscripción del plan ${plan}...`, {
+            duration: 4000,
+            position: 'top-center',
+            transition: 'topBounce',
+            sound: true,
+        });
     };
 
     const handleCreditsClick = (credits: number) => {
@@ -84,10 +90,20 @@ export default function ProfileSection() {
                 if (data.url) {
                     window.location.href = data.url;
                 } else {
-                    alert(`Error al iniciar el pago: ${data.error || data.message || 'Error desconocido.'}`);
+                    showToast.error(`Error al iniciar el pago: ${data.error || data.message || 'Error desconocido.'}`, {
+                        duration: 4000,
+                        position: 'top-center',
+                        transition: 'topBounce',
+                        sound: true,
+                    });
                 }
             } catch (e) {
-                alert('Error de conexión con el servidor de pago.');
+                showToast.error('Error de conexión con el servidor de pago.', {
+                    duration: 4000,
+                    position: 'top-center',
+                    transition: 'topBounce',
+                    sound: true,
+                });
             }
         };
 
@@ -106,13 +122,28 @@ export default function ProfileSection() {
             });
             const data = await res.json();
             if (data.success) {
-                alert('Suscripción cancelada. Mantendrás acceso hasta la fecha de finalización.');
+                showToast.success('Suscripción cancelada. Mantendrás acceso hasta la fecha de finalización.', {
+                    duration: 4000,
+                    position: 'top-center',
+                    transition: 'topBounce',
+                    sound: true,
+                });
                 window.location.reload();
             } else {
-                alert(`Error al cancelar: ${data.message || 'Error desconocido.'}`);
+                showToast.error(`Error al cancelar: ${data.message || 'Error desconocido.'}`, {
+                    duration: 4000,
+                    position: 'top-center',
+                    transition: 'topBounce',
+                    sound: true,
+                });
             }
         } catch (e) {
-            alert('Error de conexión con el servidor.');
+            showToast.error('Error de conexión con el servidor.', {
+                duration: 4000,
+                position: 'top-center',
+                transition: 'topBounce',
+                sound: true,
+            });
         }
     };
 
