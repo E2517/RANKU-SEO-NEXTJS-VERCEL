@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import Footer from '@/components/layout/Footer';
@@ -14,14 +15,18 @@ import ProfileSection from '@/components/dashboard/ProfileSection';
 import './dashboard.css';
 
 export default function DashboardPage() {
+    const searchParams = useSearchParams();
     const [activeTab, setActiveTab] = useState('search-section');
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
     useEffect(() => {
-        const loadUser = async () => {
-        };
-        loadUser();
-    }, []);
+        const tab = searchParams.get('tab');
+        if (tab) {
+            setActiveTab(tab);
+        } else {
+            setActiveTab('search-section');
+        }
+    }, [searchParams]);
 
     const toggleSidebar = () => {
         setIsSidebarOpen(!isSidebarOpen);

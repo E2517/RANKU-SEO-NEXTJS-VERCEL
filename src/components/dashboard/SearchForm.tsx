@@ -1,7 +1,10 @@
 'use client';
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { showToast } from 'nextjs-toast-notify';
 
 export default function SearchForm() {
+    const router = useRouter();
     const [formData, setFormData] = useState({
         keywords: '',
         domain: '',
@@ -9,7 +12,6 @@ export default function SearchForm() {
         searchEngine: 'google',
         devices: ['desktop'] as ('desktop' | 'mobile' | 'google_local')[],
     });
-    const [message, setMessage] = useState<{ text: string; type: 'success' | 'error' } | null>(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -38,7 +40,6 @@ export default function SearchForm() {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        setMessage(null);
         setIsSubmitting(true);
 
         try {
@@ -54,17 +55,42 @@ export default function SearchForm() {
                 }),
             });
             const data = await res.json();
+
             if (data.success) {
-                setMessage({
-                    text: `${data.message} Puedes ir a la pestaña 'Dominios' para ver los resultados.`,
-                    type: 'success'
+                showToast.success(`${data.message} Puedes ir a la pestaña 'Dominios' para ver los resultados.`, {
+                    duration: 5000,
+                    position: 'bottom-center',
+                    transition: 'topBounce',
+                    progress: true,
+                    sound: true,
                 });
+            } else if (data.redirectTo) {
+                showToast.warning(data.message, {
+                    duration: 4000,
+                    position: 'top-center',
+                    transition: 'topBounce',
+                    progress: true,
+                    sound: true,
+                });
+                setTimeout(() => {
+                    router.push(data.redirectTo);
+                }, 4000);
             } else {
-                setMessage({ text: data.message, type: 'error' });
+                showToast.error(data.message, {
+                    duration: 4000,
+                    position: 'top-center',
+                    transition: 'topBounce',
+                    sound: true,
+                });
             }
         } catch (error) {
             console.error('Error al enviar la búsqueda:', error);
-            setMessage({ text: 'Error de conexión con el servidor.', type: 'error' });
+            showToast.error('Error de conexión con el servidor.', {
+                duration: 4000,
+                position: 'top-right',
+                transition: 'topBounce',
+                sound: true,
+            });
         } finally {
             setIsSubmitting(false);
         }
@@ -172,17 +198,6 @@ export default function SearchForm() {
                 >
                     {isSubmitting ? 'Buscando...' : 'Añadir'}
                 </button>
-                {message && (
-                    <div
-                        style={{
-                            marginTop: '15px',
-                            color: message.type === 'success' ? '#10b981' : '#ef4444',
-                            fontWeight: '500'
-                        }}
-                    >
-                        {message.text}
-                    </div>
-                )}
             </form>
         </div>
     );

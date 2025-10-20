@@ -5,9 +5,9 @@ import LocalVisibilityResult from '@/models/LocalVisibilityResult';
 
 export const dynamic = 'force-dynamic';
 
-export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
     await connectDB();
-    const { id } = params;
+    const { id } = await params;
     try {
         const campaign = await LocalVisibilityCampaign.findById(id);
         if (!campaign) {

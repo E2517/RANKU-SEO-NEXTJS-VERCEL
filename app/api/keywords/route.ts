@@ -46,7 +46,17 @@ export async function GET() {
             updatedAt: c.updatedAt || c.createdAt,
         }));
 
-        const allRecords = [...searchResults, ...campaignRecords].sort(
+        // SE INCLUYE A SCANMAP EN CONTADOR DE KEYWORDS
+
+        // const allRecords = [...searchResults, ...campaignRecords].sort(
+        //     (a, b) => {
+        //         const dateA = a.updatedAt ? new Date(a.updatedAt).getTime() : 0;
+        //         const dateB = b.updatedAt ? new Date(b.updatedAt).getTime() : 0;
+        //         return dateB - dateA;
+        //     }
+        // );
+
+        const allRecords = [...searchResults].sort(
             (a, b) => {
                 const dateA = a.updatedAt ? new Date(a.updatedAt).getTime() : 0;
                 const dateB = b.updatedAt ? new Date(b.updatedAt).getTime() : 0;
