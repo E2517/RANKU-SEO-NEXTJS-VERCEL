@@ -57,8 +57,9 @@ export async function POST(req: NextRequest) {
           if (!subscriptionId) break;
 
           const sub = await stripe.subscriptions.retrieve(subscriptionId);
-          const startDate = toDateFromUnixSeconds((sub as any).current_period_start);
-          const endDate = toDateFromUnixSeconds((sub as any).current_period_end);
+          
+          const startDate = toDateFromUnixSeconds(sub.items.data[0].current_period_start);
+          const endDate = toDateFromUnixSeconds(sub.items.data[0].current_period_end);
           const keywordLimit = getKeywordLimit(plan);
           const scanMapBase = getScanMapBaseLimit(plan);
 
@@ -93,7 +94,7 @@ export async function POST(req: NextRequest) {
         if (!subscriptionId) break;
 
         const sub = await stripe.subscriptions.retrieve(subscriptionId);
-        const endDate = toDateFromUnixSeconds((sub as any).current_period_end);
+        const endDate = toDateFromUnixSeconds(sub.ended_at);
         if (endDate) {
           await User.findOneAndUpdate({ subscriptionId }, { subscriptionEndDate: endDate });
         } else {
@@ -106,8 +107,8 @@ export async function POST(req: NextRequest) {
         const sub = event.data.object as Stripe.Subscription;
         const subscriptionId = sub.id;
         const cancelAtPeriodEnd = !!sub.cancel_at_period_end;
-        const startDate = toDateFromUnixSeconds((sub as any).current_period_start);
-        const endDate = toDateFromUnixSeconds((sub as any).current_period_end);
+        const startDate = toDateFromUnixSeconds(sub.items.data[0].current_period_start);
+        const endDate = toDateFromUnixSeconds(sub.items.data[0].current_period_end);
 
         let newPlan: string | null = null;
         if (sub.items && sub.items.data && sub.items.data.length > 0) {
