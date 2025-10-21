@@ -11,14 +11,14 @@ export async function GET(request: Request) {
   const code = searchParams.get('code');
 
   if (!code) {
-    return NextResponse.redirect(new URL('/auth', process.env.APP_URL));
+    return NextResponse.redirect(new URL('/auth', process.env.NEXT_PUBLIC_APP_URL));
   }
 
   try {
     const oauth2Client = new google.auth.OAuth2(
       process.env.GOOGLE_CLIENT_ID,
       process.env.GOOGLE_CLIENT_SECRET,
-      `${process.env.APP_URL}/api/auth/google/callback`
+      `${process.env.NEXT_PUBLIC_APP_URL}/api/auth/google/callback`
     );
 
     const { tokens } = await oauth2Client.getToken(code);
@@ -49,9 +49,9 @@ export async function GET(request: Request) {
       path: '/',
     });
 
-    return NextResponse.redirect(new URL('/dashboard', process.env.APP_URL));
+    return NextResponse.redirect(new URL('/dashboard', process.env.NEXT_PUBLIC_APP_URL));
   } catch (err) {
     console.error('Error en callback de Google:', err);
-    return NextResponse.redirect(new URL('/auth', process.env.APP_URL));
+    return NextResponse.redirect(new URL('/auth', process.env.NEXT_PUBLIC_APP_URL));
   }
 }

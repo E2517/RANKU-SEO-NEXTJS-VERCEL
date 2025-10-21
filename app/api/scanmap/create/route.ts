@@ -57,7 +57,7 @@ export async function POST(req: NextRequest) {
         const campaignId = campaign._id.toString();
         console.log('🚀 ScanMap iniciado. ID:', campaignId, 'Dominio:', domain, 'Keyword:', keyword);
 
-        fetch(`${process.env.APP_URL}/api/scanmap/process`, {
+        fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/scanmap/process`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ campaignId, keyword, domain, lat, lng, maxRadiusMeters, stepMeters })

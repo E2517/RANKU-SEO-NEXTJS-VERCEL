@@ -23,7 +23,7 @@ export async function POST(request: Request) {
     user.resetPasswordExpires = new Date(Date.now() + 3600000); // 1 hora
     await user.save();
 
-    const resetUrl = `${process.env.APP_URL}/auth/reset-password?token=${encodeURIComponent(resetToken)}`;
+    const resetUrl = `${process.env.NEXT_PUBLIC_APP_URL}/auth/reset-password?token=${encodeURIComponent(resetToken)}`;
 
     await transporter.sendMail({
       to: user.email,

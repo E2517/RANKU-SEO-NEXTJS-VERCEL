@@ -43,8 +43,8 @@ export async function POST(req: Request) {
             payment_method_types: ['card'],
             line_items: [{ price: priceId, quantity: 1 }],
             subscription_data: trialPeriodDays ? { trial_period_days: trialPeriodDays } : {},
-            success_url: `${process.env.APP_URL}/payment-success?session_id={CHECKOUT_SESSION_ID}`,
-            cancel_url: `${process.env.APP_URL}/profile`,
+            success_url: `${process.env.NEXT_PUBLIC_APP_URL}/payment-success?session_id={CHECKOUT_SESSION_ID}`,
+            cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/profile`,
             client_reference_id: userId,
             metadata: { plan },
         });

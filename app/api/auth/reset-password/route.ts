@@ -9,7 +9,7 @@ export async function GET(request: Request) {
   const token = searchParams.get('token');
 
   if (!token) {
-    return NextResponse.redirect(new URL('/auth', process.env.APP_URL || 'http://localhost:3000'));
+    return NextResponse.redirect(new URL('/auth', process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'));
   }
 
   let decodedToken: string;
@@ -29,7 +29,7 @@ export async function GET(request: Request) {
   }
 
   return NextResponse.redirect(
-    new URL(`/auth/reset-password?token=${encodeURIComponent(decodedToken)}`, process.env.APP_URL || 'http://localhost:3000')
+    new URL(`/auth/reset-password?token=${encodeURIComponent(decodedToken)}`, process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000')
   );
 }
 
