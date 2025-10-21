@@ -13,8 +13,60 @@ interface SerpApiResponse {
         link?: string;
         position?: number;
     }[];
-    local_results?: any[];
-    ads_results?: any[];
+    local_results?: Array<{
+        position?: number;
+        website?: string;
+        links?: { website?: string };
+        title?: string;
+        rating?: number;
+        reviews?: number;
+    }>;
+    ads_results?: Array<{
+        position?: number;
+        website?: string;
+        links?: { website?: string };
+        title?: string;
+        rating?: number;
+        reviews?: number;
+    }>;
+}
+
+interface AggregatedKeyword {
+    _id: {
+        palabraClave: string;
+        dominioFiltrado: string;
+        dispositivo: string;
+        location: string | null;
+    };
+    userIds: string[];
+}
+
+interface SearchResultDocument {
+    userId: string;
+    palabraClave: string;
+    dominioFiltrado: string;
+    dispositivo: string;
+    location: string | null;
+    posicion: number;
+    createdAt?: Date;
+    updatedAt?: Date;
+}
+
+interface UpdateData {
+    userId: string;
+    buscador: string;
+    dispositivo: string;
+    posicion: number;
+    palabraClave: string;
+    dominio: string;
+    tipoBusqueda: string;
+    dominioFiltrado: string;
+    location: string | null;
+    rating?: number | null;
+    reviews?: number | null;
+    updatedAt: Date;
+    posicionAnterior?: number;
+    fechaPosicionAnterior?: Date;
 }
 
 export async function GET() {
@@ -37,7 +89,7 @@ export async function GET() {
     }
 
     try {
-        const allKeywords = await SearchResult.aggregate([
+        const allKeywords = await SearchResult.aggregate<AggregatedKeyword>([
             {
                 $group: {
                     _id: {
@@ -62,12 +114,12 @@ export async function GET() {
 
             if (dispositivo === 'google_local') {
                 let position = 0;
-                let rating = null;
-                let reviews = null;
-                let foundDomain = null;
+                let rating: number | null = null;
+                let reviews: number | null = null;
+                let foundDomain: string | null = null;
 
                 for (let start = 0; start < 100; start += 20) {
-                    const params: any = {
+                    const params = {
                         api_key: SERPAPI_API_KEY,
                         q: location ? `${palabraClave} ${location}` : palabraClave,
                         engine: 'google_local',
@@ -87,7 +139,7 @@ export async function GET() {
                     let foundInPage = false;
                     for (const result of pageResults) {
                         if (result.position !== undefined) {
-                            let resultDomain = null;
+                            let resultDomain: string | null = null;
 
                             if (result.website) {
                                 resultDomain = normalizeDomain(result.website);
@@ -132,10 +184,10 @@ export async function GET() {
                             ...(location ? { location } : {})
                         };
 
-                        const existing = await SearchResult.findOne(updateFilter);
+                        const existing = await SearchResult.findOne<SearchResultDocument>(updateFilter);
 
                         const now = new Date();
-                        const newSetData: any = {
+                        const newSetData: UpdateData = {
                             userId: userId,
                             buscador: 'google_local',
                             dispositivo: 'google_local',
@@ -165,10 +217,10 @@ export async function GET() {
                 }
             } else {
                 let position = 0;
-                let foundDomain = null;
+                let foundDomain: string | null = null;
 
                 for (let start = 0; start < 100; start += 10) {
-                    const params: any = {
+                    const params = {
                         api_key: SERPAPI_API_KEY,
                         q: location ? `${palabraClave} ${location}` : palabraClave,
                         engine: 'google',
@@ -212,10 +264,10 @@ export async function GET() {
                             ...(location ? { location } : {})
                         };
 
-                        const existing = await SearchResult.findOne(updateFilter);
+                        const existing = await SearchResult.findOne<SearchResultDocument>(updateFilter);
 
                         const now = new Date();
-                        const newSetData: any = {
+                        const newSetData: UpdateData = {
                             userId: userId,
                             buscador: 'google',
                             dispositivo: dispositivo,

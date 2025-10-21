@@ -21,6 +21,7 @@ export async function GET(req: NextRequest) {
     try {
         userId = new Types.ObjectId(userIdStr);
     } catch (e) {
+        console.error(e)
         return NextResponse.json({ success: false, message: 'ID de usuario inválido.' }, { status: 400 });
     }
 

@@ -50,7 +50,9 @@ export async function POST(req: Request) {
         });
 
         return NextResponse.json({ url: session.url });
-    } catch (error: any) {
-        return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+    } catch (error) {
+        console.error('Error en create-checkout-session:', error);
+        const message = error instanceof Error ? error.message : 'Error interno del servidor';
+        return NextResponse.json({ success: false, error: message }, { status: 500 });
     }
 }

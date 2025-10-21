@@ -23,7 +23,8 @@ export async function POST() {
             success: true,
             message: 'Suscripción cancelada. Seguirás con acceso hasta el final del periodo actual.',
         });
-    } catch (error: any) {
+    } catch (error) {
+        console.error('Error al cancelar la suscripción:', error);
         return NextResponse.json({ success: false, message: 'Error al cancelar la suscripción.' }, { status: 500 });
     }
 }

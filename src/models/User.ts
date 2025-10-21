@@ -1,5 +1,5 @@
 import { Schema, model, models, Model } from 'mongoose';
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 
 export interface IUser {
     username: string;
@@ -60,17 +60,34 @@ const userSchema = new Schema<IUser, UserModel>(
 
 userSchema.pre('save', async function (next) {
     if (!this.isModified('password') || !this.password) return next();
-    const salt = await bcrypt.genSalt(10);
-    this.password = await bcrypt.hash(this.password, salt);
-    next();
+    try {
+        const salt = await bcrypt.genSalt(10);
+        this.password = await bcrypt.hash(this.password, salt);
+        next();
+    } catch (error) {
+        next(error as Error);
+    }
 });
 
 userSchema.methods.comparePassword = async function (
     candidatePassword: string
 ): Promise<boolean> {
     if (!this.password) return false;
-    return bcrypt.compare(candidatePassword, this.password);
+    try {
+        return await bcrypt.compare(candidatePassword, this.password);
+    } catch (error) {
+        throw new Error('Error comparing passwords');
+    }
 };
 
-const User = (models.User as UserModel) || model<IUser, UserModel>('User', userSchema);
-export default User;
+const getUserModel = (): UserModel => {
+    if (models.User) {
+        return models.User as UserModel;
+    } else {
+        const modelInstance = model<IUser, UserModel>('User', userSchema);
+        return modelInstance;
+    }
+};
+
+export { getUserModel };
+export default getUserModel();

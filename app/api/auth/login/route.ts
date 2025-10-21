@@ -26,7 +26,8 @@ export async function POST(request: Request) {
     })
 
     return NextResponse.json({ success: true, message: 'Inicio de sesión exitoso.' })
-  } catch (err) {
+  } catch (error) {
+    console.error('Error en login:', error)
     return NextResponse.json({ success: false, message: 'Error interno del servidor.' }, { status: 500 })
   }
 }
