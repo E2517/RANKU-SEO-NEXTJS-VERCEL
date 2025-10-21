@@ -242,27 +242,32 @@ export default function AdminPanel() {
     return (
         <div className={styles.card}>
             <h2>Panel de Administración</h2>
-            <div className={styles.formGroup}>
-                <button className={styles.button} onClick={handleResetLimits}>
-                    Resetear Límites de Keywords (Manual)
-                </button>
-                <button className={`${styles.button} ${styles.secondaryButton}`} onClick={handleUpdateAllKeywords}>
-                    Actualizar Todas las Keywords (Manual)
-                </button>
-                <p>Se ejecuta un Cron en vercel.json todos los dias a las 0:00 y 3:00 am configurado en vercel.json</p>
+            <div className={styles.actionSection}>
+                <div className={styles.buttonGroup}>
+                    <button className={styles.primaryButton} onClick={handleResetLimits}>
+                        Resetear Límites de Keywords
+                    </button>
+                    <button className={styles.secondaryButton} onClick={handleUpdateAllKeywords}>
+                        Actualizar Todas las Keywords
+                    </button>
+                </div>
+                <p className={styles.hint}>Se ejecuta un Cron en Vercel todos los días a las 00:00 y 03:00 (configurado en vercel.json)</p>
             </div>
 
-            <div className={styles.formGroup}>
+            <div className={styles.trialSection}>
                 <h3>Configuración del Periodo de Prueba</h3>
-                <label>
-                    <input
-                        type="checkbox"
-                        checked={trialConfig.isActive}
-                        onChange={handleToggleTrial}
-                    />
-                    Activar periodo de prueba
-                </label>
-                <div>
+                <div className={styles.trialToggle}>
+                    <label className={styles.switch}>
+                        <input
+                            type="checkbox"
+                            checked={trialConfig.isActive}
+                            onChange={handleToggleTrial}
+                        />
+                        <span className={styles.slider}></span>
+                    </label>
+                    <span>Activar periodo de prueba</span>
+                </div>
+                <div className={styles.daysInput}>
                     <label>Días de prueba:</label>
                     <input
                         type="number"
@@ -274,7 +279,7 @@ export default function AdminPanel() {
                     />
                 </div>
                 <button
-                    className={styles.button}
+                    className={styles.saveButton}
                     onClick={handleSaveTrialConfig}
                     disabled={saving}
                 >
@@ -288,10 +293,10 @@ export default function AdminPanel() {
                         <tr>
                             <th>Email</th>
                             <th>Plan</th>
-                            <th>Inicio Suscripción</th>
-                            <th>Fin Suscripción</th>
+                            <th>Inicio</th>
+                            <th>Fin</th>
                             <th>Cancelado</th>
-                            <th>Fecha Registro</th>
+                            <th>Registro</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -299,18 +304,10 @@ export default function AdminPanel() {
                             users.map((user) => (
                                 <tr key={user._id}>
                                     <td>{user.email}</td>
-                                    <td>{user.subscriptionPlan}</td>
-                                    <td>
-                                        {user.subscriptionStartDate
-                                            ? new Date(user.subscriptionStartDate).toLocaleDateString()
-                                            : '-'}
-                                    </td>
-                                    <td>
-                                        {user.subscriptionEndDate
-                                            ? new Date(user.subscriptionEndDate).toLocaleDateString()
-                                            : '-'}
-                                    </td>
-                                    <td>{user.isSubscriptionCanceled ? 'Sí' : 'No'}</td>
+                                    <td><span className={`${styles.planTag} ${styles[user.subscriptionPlan.toLowerCase()]}`}>{user.subscriptionPlan}</span></td>
+                                    <td>{user.subscriptionStartDate ? new Date(user.subscriptionStartDate).toLocaleDateString() : '-'}</td>
+                                    <td>{user.subscriptionEndDate ? new Date(user.subscriptionEndDate).toLocaleDateString() : '-'}</td>
+                                    <td><span className={user.isSubscriptionCanceled ? styles.statusRed : styles.statusGreen}>{user.isSubscriptionCanceled ? 'Sí' : 'No'}</span></td>
                                     <td>{new Date(user.createdAt).toLocaleDateString()}</td>
                                 </tr>
                             ))
