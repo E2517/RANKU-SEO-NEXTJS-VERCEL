@@ -1,10 +1,9 @@
-// app/api/webhook/route.ts
 import { NextRequest } from 'next/server';
 import { stripe } from '@/lib/stripe';
+import User from '@/models/User';
 import { connectDB } from '@/lib/mongoose';
 import { Stripe } from 'stripe';
 import { getKeywordLimit, getScanMapBaseLimit } from '@/lib/utils';
-import { getUserModel } from '@/models/User'; // Importa la función auxiliar
 
 const relevantEvents = new Set([
   'checkout.session.completed',
@@ -46,24 +45,24 @@ export async function POST(req: NextRequest) {
         if (session.mode === 'subscription') {
           const plan = session.metadata?.plan || 'Basico';
           const customerId = session.customer as string;
-          const subscriptions = await stripe.subscriptions.list({
-            customer: customerId,
-            status: 'active',
-            limit: 1,
-          });
 
-          if (subscriptions.data.length === 0) break;
+          // Obtener la suscripción directamente usando el ID de la sesión
+          const subscriptionId = session.subscription as string;
+          if (!subscriptionId) {
+            console.error('No subscription ID found in session');
+            break;
+          }
 
-          const sub = subscriptions.data[0];
+          const sub = await stripe.subscriptions.retrieve(subscriptionId);
+
+          // Acceder a las propiedades con seguridad de tipo
           const startDate = new Date((sub as any).current_period_start * 1000);
           const endDate = new Date((sub as any).current_period_end * 1000);
 
           const keywordLimit = getKeywordLimit(plan);
           const scanMapBase = getScanMapBaseLimit(plan);
 
-          // Obtener el modelo dentro del handler
-          const UserModel = getUserModel();
-          await UserModel.findByIdAndUpdate(userId, {
+          await User.findByIdAndUpdate(userId, {
             stripeCustomerId: customerId,
             subscriptionId: sub.id,
             subscriptionPlan: plan,
@@ -79,25 +78,29 @@ export async function POST(req: NextRequest) {
         ) {
           const credits = parseInt(session.metadata.credits!, 10);
           if (!isNaN(credits) && credits > 0) {
-            // Obtener el modelo dentro del handler
-            const UserModel = getUserModel();
-            await UserModel.findByIdAndUpdate(userId, { $inc: { limitScanMap: credits } });
+            await User.findByIdAndUpdate(userId, { $inc: { limitScanMap: credits } });
           }
         }
         break;
       }
 
       case 'invoice.payment_succeeded': {
-        const invoice = event.data.object as any;
-        const subscriptionId = typeof invoice.subscription === 'string' ? invoice.subscription : null;
-        if (!subscriptionId) break;
+        const invoice = event.data.object as Stripe.Invoice;
+
+        // Acceder a subscription con verificación de tipo
+        const subscriptionId = typeof (invoice as any).subscription === 'string'
+          ? (invoice as any).subscription
+          : null;
+
+        if (!subscriptionId) {
+          console.error('No subscription ID found in invoice');
+          break;
+        }
 
         const sub = await stripe.subscriptions.retrieve(subscriptionId);
         const endDate = new Date((sub as any).current_period_end * 1000);
 
-        // Obtener el modelo dentro del handler
-        const UserModel = getUserModel();
-        await UserModel.findOneAndUpdate(
+        await User.findOneAndUpdate(
           { subscriptionId },
           { subscriptionEndDate: endDate }
         );
@@ -124,19 +127,14 @@ export async function POST(req: NextRequest) {
           update.limitScanMap = getScanMapBaseLimit(newPlan);
         }
 
-        // Obtener el modelo dentro del handler
-        const UserModel = getUserModel();
-        await UserModel.findOneAndUpdate({ subscriptionId }, update);
+        await User.findOneAndUpdate({ subscriptionId }, update);
         break;
       }
 
       case 'customer.subscription.deleted': {
         const sub = event.data.object as Stripe.Subscription;
         const subscriptionId = sub.id;
-
-        // Obtener el modelo dentro del handler
-        const UserModel = getUserModel();
-        await UserModel.findOneAndUpdate(
+        await User.findOneAndUpdate(
           { subscriptionId },
           {
             subscriptionId: null,
