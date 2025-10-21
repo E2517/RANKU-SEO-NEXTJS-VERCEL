@@ -15,9 +15,16 @@ interface User {
     createdAt: string;
 }
 
+interface TrialConfig {
+    isActive: boolean;
+    trialPeriodDays: number;
+}
+
 export default function AdminPanel() {
     const [users, setUsers] = useState<User[]>([]);
     const [loading, setLoading] = useState(true);
+    const [trialConfig, setTrialConfig] = useState<TrialConfig>({ isActive: false, trialPeriodDays: 7 });
+    const [saving, setSaving] = useState(false);
 
     useEffect(() => {
         const fetchUsers = async () => {
@@ -33,17 +40,12 @@ export default function AdminPanel() {
                     setLoading(false);
                     return;
                 }
-                if (!res.ok) {
-                    throw new Error(`Error HTTP: ${res.status}`);
-                }
+                if (!res.ok) throw new Error(`Error HTTP: ${res.status}`);
                 const data = await res.json();
-                console.log("Respuesta del servidor:", data); // <-- Para depurar
-
-                if (data && typeof data === 'object' && data.success === true && Array.isArray(data.users)) {
+                if (data && data.success === true && Array.isArray(data.users)) {
                     const sortedUsers = data.users.sort((a: User, b: User) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
                     setUsers(sortedUsers);
                 } else {
-                    console.error("Formato inesperado de respuesta:", data);
                     showToast.error('La respuesta del servidor no es válida. Formato incorrecto.', {
                         duration: 4000,
                         position: 'top-center',
@@ -52,7 +54,6 @@ export default function AdminPanel() {
                     });
                 }
             } catch (err: any) {
-                console.error("Error al cargar usuarios:", err);
                 showToast.error(err.message || 'Error de red al cargar usuarios', {
                     duration: 4000,
                     position: 'top-center',
@@ -64,7 +65,38 @@ export default function AdminPanel() {
             }
         };
 
+        const fetchTrialConfig = async () => {
+            try {
+                const res = await fetch('/api/admin/update-trial');
+                if (res.status === 403) {
+                    showToast.error('Acceso denegado. No tienes permisos de administrador.', {
+                        duration: 4000,
+                        position: 'top-center',
+                        transition: 'topBounce',
+                        sound: true,
+                    });
+                    return;
+                }
+                if (!res.ok) throw new Error('Error al cargar configuración de prueba');
+                const data = await res.json();
+                if (data.success) {
+                    setTrialConfig({
+                        isActive: data.isActive,
+                        trialPeriodDays: data.trialPeriodDays,
+                    });
+                }
+            } catch (err: any) {
+                showToast.error(err.message || 'Error al cargar configuración de prueba', {
+                    duration: 4000,
+                    position: 'top-center',
+                    transition: 'topBounce',
+                    sound: true,
+                });
+            }
+        };
+
         fetchUsers();
+        fetchTrialConfig();
     }, []);
 
     const handleResetLimits = async () => {
@@ -143,6 +175,66 @@ export default function AdminPanel() {
         }
     };
 
+    const handleSaveTrialConfig = async () => {
+        setSaving(true);
+        try {
+            const res = await fetch('/api/admin/update-trial', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    isActive: trialConfig.isActive,
+                    trialPeriodDays: trialConfig.trialPeriodDays,
+                }),
+            });
+            if (res.status === 403) {
+                showToast.error('Acceso denegado. No tienes permisos de administrador.', {
+                    duration: 4000,
+                    position: 'top-center',
+                    transition: 'topBounce',
+                    sound: true,
+                });
+                setSaving(false);
+                return;
+            }
+            const data = await res.json();
+            if (data.success) {
+                showToast.success('Configuración del periodo de prueba actualizada.', {
+                    duration: 4000,
+                    position: 'top-center',
+                    transition: 'topBounce',
+                    sound: true,
+                });
+            } else {
+                showToast.error(data.message || 'Error al guardar configuración', {
+                    duration: 4000,
+                    position: 'top-center',
+                    transition: 'topBounce',
+                    sound: true,
+                });
+            }
+        } catch (err: any) {
+            showToast.error(err.message || 'Error de red al guardar configuración', {
+                duration: 4000,
+                position: 'top-center',
+                transition: 'topBounce',
+                sound: true,
+            });
+        } finally {
+            setSaving(false);
+        }
+    };
+
+    const handleToggleTrial = () => {
+        setTrialConfig((prev) => ({ ...prev, isActive: !prev.isActive }));
+    };
+
+    const handleDaysChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const value = Number(e.target.value);
+        if (value >= 1 && value <= 90) {
+            setTrialConfig((prev) => ({ ...prev, trialPeriodDays: value }));
+        }
+    };
+
     if (loading) {
         return <div className={styles.card}>Cargando usuarios...</div>;
     }
@@ -159,6 +251,37 @@ export default function AdminPanel() {
                 </button>
                 <p>Se ejecuta un Cron en vercel.json todos los dias a las 0:00 y 3:00 am configurado en vercel.json</p>
             </div>
+
+            <div className={styles.formGroup}>
+                <h3>Configuración del Periodo de Prueba</h3>
+                <label>
+                    <input
+                        type="checkbox"
+                        checked={trialConfig.isActive}
+                        onChange={handleToggleTrial}
+                    />
+                    Activar periodo de prueba
+                </label>
+                <div>
+                    <label>Días de prueba:</label>
+                    <input
+                        type="number"
+                        min="1"
+                        max="90"
+                        value={trialConfig.trialPeriodDays}
+                        onChange={handleDaysChange}
+                        disabled={!trialConfig.isActive}
+                    />
+                </div>
+                <button
+                    className={styles.button}
+                    onClick={handleSaveTrialConfig}
+                    disabled={saving}
+                >
+                    {saving ? 'Guardando...' : 'Guardar Configuración'}
+                </button>
+            </div>
+
             <div className={styles.tableContainer}>
                 <table className={styles.usersTable}>
                     <thead>

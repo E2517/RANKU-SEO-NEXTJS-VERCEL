@@ -32,22 +32,26 @@ export async function POST(req: Request) {
     }
 
     try {
-        let trialPeriodDays: number | undefined = undefined;
         const promotion = await Promotion.findOne({ type: 'trial' });
-        if (promotion?.isActive && promotion.trialPeriodDays > 0) {
-            trialPeriodDays = promotion.trialPeriodDays;
-        }
+        const trialPeriodDays = promotion?.isActive && promotion.trialPeriodDays > 0
+            ? promotion.trialPeriodDays
+            : undefined;
 
-        const session = await stripe.checkout.sessions.create({
+        const sessionParams: any = {
             mode: 'subscription',
             payment_method_types: ['card'],
             line_items: [{ price: priceId, quantity: 1 }],
-            subscription_data: trialPeriodDays ? { trial_period_days: trialPeriodDays } : {},
             success_url: `${process.env.NEXT_PUBLIC_APP_URL}/payment-success?session_id={CHECKOUT_SESSION_ID}`,
             cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/profile`,
             client_reference_id: userId,
             metadata: { plan },
-        });
+        };
+
+        if (trialPeriodDays !== undefined) {
+            sessionParams.subscription_data = { trial_period_days: trialPeriodDays };
+        }
+
+        const session = await stripe.checkout.sessions.create(sessionParams);
 
         return NextResponse.json({ url: session.url });
     } catch (error) {

@@ -10,6 +10,7 @@ export default function ProfileSection() {
     const [loading, setLoading] = useState(true);
     const [keywordUsage, setKeywordUsage] = useState<number>(0);
     const [scanmapUsage, setScanmapUsage] = useState<{ usedThisCycle: number; baseLimit: number; creditsPurchased: number; creditsUsed: number } | null>(null);
+    const [trialInfo, setTrialInfo] = useState<{ show: boolean; days: number }>({ show: false, days: 0 });
 
     useEffect(() => {
         const fetchUser = async () => {
@@ -30,7 +31,23 @@ export default function ProfileSection() {
             }
         };
 
+        const fetchTrialStatus = async () => {
+            try {
+                const res = await fetch('/api/trial-status');
+                if (res.ok) {
+                    const data = await res.json();
+                    setTrialInfo({
+                        show: data.show || false,
+                        days: data.days || 0,
+                    });
+                }
+            } catch (err) {
+                console.error('Error al cargar el estado del trial:', err);
+            }
+        };
+
         fetchUser();
+        fetchTrialStatus();
     }, []);
 
     useEffect(() => {
@@ -203,12 +220,6 @@ export default function ProfileSection() {
                     <p><strong>Renueva automáticamente el:</strong> {new Date(user.subscriptionEndDate).toLocaleDateString()}</p>
                 )}
                 {!isSubscribed && <p><strong>Renueva automáticamente el:</strong> --</p>}
-                {/* {user.subscriptionId && (
-                    <p><strong>ID de Suscripción:</strong> {user.subscriptionId}</p>
-                )} */}
-                {/* {user.stripeCustomerId && (
-                    <p><strong>ID de Cliente en Stripe:</strong> {user.stripeCustomerId}</p>
-                )} */}
                 {user.subscriptionPlan !== 'Gratuito' && (
                     <p><strong>Keywords buscadas:</strong> <span id="keyword-usage">{keywordUsage} / {keywordLimit} ({user.subscriptionPlan})</span></p>
                 )}
@@ -227,7 +238,25 @@ export default function ProfileSection() {
                 )}
             </div>
 
-            <h2>Elige tu plan</h2>
+            <h2 style={{ textAlign: 'center', marginTop: '2rem' }}>Elige tu plan</h2>
+
+            {trialInfo.show && trialInfo.days > 0 && (
+                <div style={{
+                    textAlign: 'center',
+                    margin: '1.5rem auto',
+                    padding: '12px 20px',
+                    backgroundColor: '#f8f9fa',
+                    color: '#6c4ab6',
+                    fontWeight: 'bold',
+                    fontSize: '1.1rem',
+                    borderRadius: '0.5rem',
+                    border: '1px solid #e5e7eb',
+                    maxWidth: '600px'
+                }}>
+                    ✨ <strong>Subscríbete</strong> a un Plan <span>{trialInfo.days}-días Gratuito</span> 🎁.
+                </div>
+            )}
+
             <div className={styles.subscriptionPlans}>
                 <div className={styles.planCard}>
                     <h3>Básico</h3>

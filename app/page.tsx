@@ -1,10 +1,33 @@
+'use client';
+
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import TopBar from '@/components/layout/TopBar';
 import Footer from '@/components/layout/Footer';
 
-
 export default function Home() {
+  const [trialInfo, setTrialInfo] = useState<{ show: boolean; days: number }>({ show: false, days: 0 });
+
+  useEffect(() => {
+    const fetchTrialStatus = async () => {
+      try {
+        const res = await fetch('/api/trial-status');
+        if (res.ok) {
+          const data = await res.json();
+          setTrialInfo({
+            show: data.show === true,
+            days: typeof data.days === 'number' ? data.days : 0,
+          });
+        }
+      } catch (err) {
+        // Silently fail; trial message remains hidden
+      }
+    };
+
+    fetchTrialStatus();
+  }, []);
+
   return (
     <>
       <TopBar />
@@ -233,7 +256,7 @@ export default function Home() {
                 <li>Actualización diaria (24h) y semanal (7 dias)</li>
                 <li>Análisis de competencia</li>
                 <li>✅ RankMap: Posición en Google Maps por ubicación</li>
-                <li>�� ScanMap: Visibilidad de dominio según la ubicación del usuario (15 búsquedas/mes)</li>
+                <li>🥷 ScanMap: Visibilidad de dominio según la ubicación del usuario (15 búsquedas/mes)</li>
                 <li>📈 Estadisticas inteligentes</li>
                 <li>Informe en Excel descargable</li>
                 <li>Informe SEO PDF descargable</li>
@@ -243,10 +266,22 @@ export default function Home() {
               </Link>
             </div>
           </div>
-          <p className="trial-message">
-            ✨ <strong>Bonus: 5 búsquedas de prueba gratis</strong> al registrarte. ¡Sin tarjeta!. <strong>Subscríbete</strong> a un Plan{' '}
-            <span className="dynamic-trial-text">X-day Trial</span> 🎁.
-          </p>
+          {trialInfo.show && trialInfo.days > 0 && (
+            <div style={{
+              textAlign: 'center',
+              margin: '1.5rem auto',
+              padding: '12px 20px',
+              backgroundColor: '#f8f9fa',
+              color: '#6c4ab6',
+              fontWeight: 'bold',
+              fontSize: '1.1rem',
+              borderRadius: '0.5rem',
+              border: '1px solid #e5e7eb',
+              maxWidth: '600px'
+            }}>
+              ✨ <strong>Subscríbete</strong> a un Plan <span>{trialInfo.days}-días Gratuito</span> 🎁.
+            </div>
+          )}
         </section>
 
         <section className="seo-importance-section">
@@ -357,14 +392,26 @@ export default function Home() {
             </Link>
           </div>
 
-          <p className="trial-message">
-            ✨ <strong>Bonus: 5 búsquedas de prueba gratis</strong> al registrarte. ¡Sin tarjeta!. <strong>Subscríbete</strong> a un Plan{' '}
-            <span className="dynamic-trial-text">X-day Trial</span> 🎁.
-          </p>
+          {trialInfo.show && trialInfo.days > 0 && (
+            <div style={{
+              textAlign: 'center',
+              margin: '1.5rem auto',
+              padding: '12px 20px',
+              backgroundColor: '#f8f9fa',
+              color: '#6c4ab6',
+              fontWeight: 'bold',
+              fontSize: '1.1rem',
+              borderRadius: '0.5rem',
+              border: '1px solid #e5e7eb',
+              maxWidth: '600px'
+            }}>
+              ✨ <strong>Subscríbete</strong> a un Plan <span>{trialInfo.days}-días Gratuito</span> 🎁.
+            </div>
+          )}
+
         </section>
       </div>
       <Footer />
     </>
-
   );
 }
