@@ -108,8 +108,8 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json();
-    const { keyword, location, domain } = body;
-    console.log('📝 Parámetros recibidos:', { keyword, location, domain });
+    const { keyword, location, domain, distanceFilter } = body;
+    console.log('📝 Parámetros recibidos:', { keyword, location, domain, distanceFilter });
     if (!keyword || !location) {
         return NextResponse.json(
             { success: false, message: 'Faltan palabra clave o localización.' },
@@ -172,25 +172,48 @@ export async function POST(req: NextRequest) {
                 position: index + 1,
             };
         });
-        const totalResults = results.length;
+
+        let filteredResults = [...results];
+        let centerLat = results[0]?.lat;
+        let centerLng = results[0]?.lng;
         const normalizedInputDomain = domain ? normalizeDomain(domain) : null;
+
+        if (distanceFilter && normalizedInputDomain) {
+            const domainResult = results.find((r: any) =>
+                r.domain && normalizeDomain(r.domain) === normalizedInputDomain
+            );
+            if (domainResult?.lat != null && domainResult?.lng != null) {
+                centerLat = domainResult.lat;
+                centerLng = domainResult.lng;
+                const maxDistance = parseInt(distanceFilter);
+                filteredResults = results.filter((r: any) => {
+                    if (r.lat == null || r.lng == null || centerLat == null || centerLng == null) return false;
+                    const dist = calculateDistance(centerLat, centerLng, r.lat, r.lng);
+                    return dist <= maxDistance;
+                });
+                filteredResults.sort((a, b) => a.position - b.position);
+                filteredResults.forEach((r, i) => r.position = i + 1);
+            }
+        }
+
+        const totalResults = filteredResults.length;
         const domainResults = normalizedInputDomain
-            ? results.filter((p: any) => p.domain && p.domain === normalizedInputDomain)
+            ? filteredResults.filter((p: any) => p.domain && p.domain === normalizedInputDomain)
             : [];
         const domainPosition = domainResults.length > 0 ? domainResults[0].position : 0;
         const domainPositionText =
             domainPosition > 0 ? `${domainPosition}/${totalResults}` : 'No encontrado';
         const avgPosition =
             totalResults > 0
-                ? results.reduce((sum: number, p: any) => sum + p.position, 0) / totalResults
+                ? filteredResults.reduce((sum: number, p: any) => sum + p.position, 0) / totalResults
                 : 0;
         const avgRating =
             totalResults > 0
-                ? results.reduce((sum: number, p: any) => sum + (p.rating || 0), 0) / totalResults
+                ? filteredResults.reduce((sum: number, p: any) => sum + (p.rating || 0), 0) / totalResults
                 : 0;
         const avgReviews =
             totalResults > 0
-                ? results.reduce((sum: number, p: any) => sum + (p.reviews || 0), 0) / totalResults
+                ? filteredResults.reduce((sum: number, p: any) => sum + (p.reviews || 0), 0) / totalResults
                 : 0;
         let isBetterThanCompetitors: any = null;
         if (domainResults.length > 0) {
@@ -264,7 +287,7 @@ export async function POST(req: NextRequest) {
 
         return NextResponse.json({
             success: true,
-            results,
+            results: filteredResults,
             domainPosition,
             domainPositionText,
             avgPosition,
@@ -272,6 +295,7 @@ export async function POST(req: NextRequest) {
             avgReviews,
             isBetterThanCompetitors,
             totalResults,
+            distanceFilter: distanceFilter || null,
         });
     } catch (error: any) {
         console.error('❌ Error en /api/rankmap:', error.response?.data || error.message || error);
