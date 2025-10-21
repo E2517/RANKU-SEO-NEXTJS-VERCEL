@@ -58,6 +58,21 @@
   box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
 }
 
+.logout-icon {
+  display: none;
+  width: 30px;
+  height: 30px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%236c4ab6'%3E%3Cpath d='M12 2a1 1 0 0 1 1 1v9a1 1 0 0 1-2 0V3a1 1 0 0 1 1-1Zm5.657 3.343a1 1 0 0 1 1.414 1.414A9 9 0 1 1 4.93 6.757a1 1 0 0 1 1.414-1.414A7 7 0 1 0 17.657 5.343Z'/%3E%3C/svg%3E");
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  cursor: pointer;
+  border: none;
+  background-color: transparent;
+  margin-left: auto;
+  margin-right: 2rem;
+}
+
 .main-layout {
   display: flex;
   flex: 1;
@@ -347,6 +362,7 @@ tr:hover {
     padding: 0.75rem 1rem;
     height: 70px;
     justify-content: flex-start;
+    position: relative;
   }
 
   .top-bar .logo {
@@ -354,25 +370,36 @@ tr:hover {
     padding-left: 2.5rem;
   }
 
-  .auth-buttons {
-    margin-left: auto;
+  .auth-buttons-mobile {
+    display: flex;
+    align-items: center;
   }
 
-  @media (max-width: 768px) {
-    .mobile-menu-toggle {
-      display: block;
-      background: none;
-      border: none;
-      font-size: 1.5rem;
-      cursor: pointer;
-      color: #6c4ab6;
-      position: absolute;
-      top: 1rem;
-      left: 1rem;
-      z-index: 1001;
-    }
+  .logout-button {
+    display: none;
   }
-  
+
+  .logout-icon {
+    display: block;
+    margin-left: auto;
+    margin-right: 2rem;
+    margin-left: 20rem;
+    margin-top: -5.0rem;
+  }
+
+  .mobile-menu-toggle {
+    display: block;
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: #6c4ab6;
+    position: absolute;
+    top: 1rem;
+    left: 1rem;
+    z-index: 1001;
+  }
+
   .sidebar {
     width: 220px;
     top: 70px;

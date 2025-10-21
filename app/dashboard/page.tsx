@@ -91,6 +91,7 @@ function DashboardContent() {
                         style={{ height: 'auto' }}
                     />
                 </Link>
+
                 <div className="auth-buttons-mobile">
                     <button
                         type="button"
@@ -106,8 +107,19 @@ function DashboardContent() {
                     >
                         Cerrar Sesión
                     </button>
+                    <button
+                        type="button"
+                        className="logout-icon"
+                        onClick={async () => {
+                            try {
+                                await fetch('/api/auth/logout', { method: 'POST' });
+                                window.location.href = '/';
+                            } catch {
+                                console.error('Error al cerrar sesión');
+                            }
+                        }}
+                    ></button>
                 </div>
-
             </header>
 
             <div className="main-layout">
