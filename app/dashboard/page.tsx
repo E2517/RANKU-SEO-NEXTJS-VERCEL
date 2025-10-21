@@ -92,12 +92,22 @@ function DashboardContent() {
                     />
                 </Link>
                 <div className="auth-buttons-mobile">
-                    <form action="/api/auth/logout" method="post">
-                        <button type="submit" className="logout-button">
-                            Cerrar Sesión
-                        </button>
-                    </form>
+                    <button
+                        type="button"
+                        className="logout-button"
+                        onClick={async () => {
+                            try {
+                                await fetch('/api/auth/logout', { method: 'POST' });
+                                window.location.href = '/';
+                            } catch {
+                                console.error('Error al cerrar sesión');
+                            }
+                        }}
+                    >
+                        Cerrar Sesión
+                    </button>
                 </div>
+
             </header>
 
             <div className="main-layout">
