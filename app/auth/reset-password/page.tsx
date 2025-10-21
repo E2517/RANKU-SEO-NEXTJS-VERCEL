@@ -1,10 +1,10 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import './reset-password.css';
 
-export default function ResetPasswordPage() {
+function ResetPasswordContent() {
   const searchParams = useSearchParams();
   const token = searchParams.get('token');
   const router = useRouter();
@@ -43,7 +43,7 @@ export default function ResetPasswordPage() {
       } else {
         setMessage({ text: data.message || 'Error al restablecer la contraseña.', type: 'error' });
       }
-    } catch (err) {
+    } catch {
       setMessage({ text: 'Error de conexión.', type: 'error' });
     } finally {
       setIsSubmitting(false);
@@ -86,5 +86,13 @@ export default function ResetPasswordPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function ResetPasswordPage() {
+  return (
+    <Suspense fallback={<div>Cargando...</div>}>
+      <ResetPasswordContent />
+    </Suspense>
   );
 }

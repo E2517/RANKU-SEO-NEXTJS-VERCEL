@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -16,7 +16,7 @@ import AdminPanel from '@/components/dashboard/AdminPanel';
 import Contact from '@/components/dashboard/Contact';
 import './dashboard.css';
 
-export default function DashboardPage() {
+function DashboardContent() {
     const searchParams = useSearchParams();
     const [activeTab, setActiveTab] = useState('search-section');
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -25,12 +25,8 @@ export default function DashboardPage() {
 
     useEffect(() => {
         const tab = searchParams.get('tab');
-        console.log('URL tab:', tab, '| Estado actual:', activeTab);
-        if (tab) {
-            setActiveTab(tab);
-        } else {
-            setActiveTab('search-section');
-        }
+        if (tab) setActiveTab(tab);
+        else setActiveTab('search-section');
     }, [searchParams]);
 
     useEffect(() => {
@@ -46,17 +42,12 @@ export default function DashboardPage() {
                     setIsAdmin(data.user.role === 'admin');
                     setUsername(data.user.username);
                 }
-            } catch (err) {
-                console.error('Error al cargar el usuario:', err);
-            }
+            } catch { }
         };
-
         fetchUser();
     }, []);
 
-    const toggleSidebar = () => {
-        setIsSidebarOpen(!isSidebarOpen);
-    };
+    const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
 
     const renderContent = () => {
         switch (activeTab) {
@@ -76,7 +67,6 @@ export default function DashboardPage() {
                 return <ProfileSection />;
             case 'contact-section':
                 return <Contact />;
-                return null;
             case 'admin-panel':
                 return isAdmin ? <AdminPanel /> : <div>No tienes permisos para ver esta sección.</div>;
             default:
@@ -92,14 +82,20 @@ export default function DashboardPage() {
                 </button>
                 <Link href="/dashboard" className="logo">
                     RANKU
-                    <Image src="/assets/ninja.png" alt="Ninja Ranku.es" className="logo-icon"
+                    <Image
+                        src="/assets/ninja.png"
+                        alt="Ninja Ranku.es"
+                        className="logo-icon"
                         width={35}
                         height={24}
-                        style={{ height: 'auto' }} />
+                        style={{ height: 'auto' }}
+                    />
                 </Link>
                 <div className="auth-buttons-mobile">
                     <form action="/api/auth/logout" method="post">
-                        <button type="submit" className="logout-button">Cerrar Sesión</button>
+                        <button type="submit" className="logout-button">
+                            Cerrar Sesión
+                        </button>
                     </form>
                 </div>
             </header>
@@ -220,12 +216,18 @@ export default function DashboardPage() {
                 </aside>
 
                 <main className="main-content">
-                    <div className="container">
-                        {renderContent()}
-                    </div>
+                    <div className="container">{renderContent()}</div>
                 </main>
             </div>
             <Footer />
         </div>
+    );
+}
+
+export default function DashboardPage() {
+    return (
+        <Suspense fallback={<div>Cargando...</div>}>
+            <DashboardContent />
+        </Suspense>
     );
 }
