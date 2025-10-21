@@ -157,6 +157,7 @@ export default function AdminPanel() {
                 <button className={`${styles.button} ${styles.secondaryButton}`} onClick={handleUpdateAllKeywords}>
                     Actualizar Todas las Keywords (Manual)
                 </button>
+                <p>Se ejecuta un Cron en vercel.json todos los dias a las 0:00 y 3:00 am configurado en vercel.json</p>
             </div>
             <div className={styles.tableContainer}>
                 <table className={styles.usersTable}>
