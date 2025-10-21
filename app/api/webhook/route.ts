@@ -12,6 +12,14 @@ const relevantEvents = new Set([
   'customer.subscription.deleted',
 ]);
 
+function toDateFromUnixSeconds(value: unknown): Date | null {
+  if (typeof value === 'number' && !isNaN(value)) {
+    const d = new Date(value * 1000);
+    if (!isNaN(d.valueOf())) return d;
+  }
+  return null;
+}
+
 export async function POST(req: NextRequest) {
   await connectDB();
 
@@ -44,41 +52,36 @@ export async function POST(req: NextRequest) {
 
         if (session.mode === 'subscription') {
           const plan = session.metadata?.plan || 'Basico';
-          const customerId = session.customer as string;
-
-          // Obtener la suscripción directamente usando el ID de la sesión
-          const subscriptionId = session.subscription as string;
-          if (!subscriptionId) {
-            console.error('No subscription ID found in session');
-            break;
-          }
+          const customerId = typeof session.customer === 'string' ? session.customer : undefined;
+          const subscriptionId = typeof session.subscription === 'string' ? session.subscription : undefined;
+          if (!subscriptionId) break;
 
           const sub = await stripe.subscriptions.retrieve(subscriptionId);
-
-          // Acceder a las propiedades con seguridad de tipo
-          const startDate = new Date((sub as any).current_period_start * 1000);
-          const endDate = new Date((sub as any).current_period_end * 1000);
-
+          const startDate = toDateFromUnixSeconds((sub as any).current_period_start);
+          const endDate = toDateFromUnixSeconds((sub as any).current_period_end);
           const keywordLimit = getKeywordLimit(plan);
           const scanMapBase = getScanMapBaseLimit(plan);
 
-          await User.findByIdAndUpdate(userId, {
+          const update: any = {
             stripeCustomerId: customerId,
             subscriptionId: sub.id,
             subscriptionPlan: plan,
-            subscriptionStartDate: startDate,
-            subscriptionEndDate: endDate,
             isSubscriptionCanceled: false,
             limitKeywords: keywordLimit,
             limitScanMap: scanMapBase,
-          });
+          };
+
+          if (startDate) update.subscriptionStartDate = startDate;
+          if (endDate) update.subscriptionEndDate = endDate;
+
+          await User.findByIdAndUpdate(userId, update);
         } else if (
           session.mode === 'payment' &&
           session.metadata?.type === 'scanmap_credits'
         ) {
-          const credits = parseInt(session.metadata.credits!, 10);
+          const credits = parseInt(session.metadata.credits || '0', 10);
           if (!isNaN(credits) && credits > 0) {
-            await User.findByIdAndUpdate(userId, { $inc: { limitScanMap: credits } });
+            await User.findByIdAndUpdate(session.client_reference_id, { $inc: { limitScanMap: credits } });
           }
         }
         break;
@@ -86,35 +89,29 @@ export async function POST(req: NextRequest) {
 
       case 'invoice.payment_succeeded': {
         const invoice = event.data.object as Stripe.Invoice;
-
-        // Acceder a subscription con verificación de tipo
-        const subscriptionId = typeof (invoice as any).subscription === 'string'
-          ? (invoice as any).subscription
-          : null;
-
-        if (!subscriptionId) {
-          console.error('No subscription ID found in invoice');
-          break;
-        }
+        const subscriptionId = typeof (invoice as any).subscription === 'string' ? (invoice as any).subscription : null;
+        if (!subscriptionId) break;
 
         const sub = await stripe.subscriptions.retrieve(subscriptionId);
-        const endDate = new Date((sub as any).current_period_end * 1000);
-
-        await User.findOneAndUpdate(
-          { subscriptionId },
-          { subscriptionEndDate: endDate }
-        );
+        const endDate = toDateFromUnixSeconds((sub as any).current_period_end);
+        if (endDate) {
+          await User.findOneAndUpdate({ subscriptionId }, { subscriptionEndDate: endDate });
+        } else {
+          await User.findOneAndUpdate({ subscriptionId }, {});
+        }
         break;
       }
 
       case 'customer.subscription.updated': {
         const sub = event.data.object as Stripe.Subscription;
         const subscriptionId = sub.id;
-        const cancelAtPeriodEnd = sub.cancel_at_period_end;
+        const cancelAtPeriodEnd = !!sub.cancel_at_period_end;
+        const startDate = toDateFromUnixSeconds((sub as any).current_period_start);
+        const endDate = toDateFromUnixSeconds((sub as any).current_period_end);
 
         let newPlan: string | null = null;
-        if (sub.items.data.length > 0) {
-          const priceId = sub.items.data[0].price.id;
+        if (sub.items && sub.items.data && sub.items.data.length > 0) {
+          const priceId = sub.items.data[0].price?.id;
           if (priceId === process.env.STRIPE_BASICO_PRICE_ID) newPlan = 'Basico';
           else if (priceId === process.env.STRIPE_PRO_PRICE_ID) newPlan = 'Pro';
           else if (priceId === process.env.STRIPE_ULTRA_PRICE_ID) newPlan = 'Ultra';
@@ -126,6 +123,8 @@ export async function POST(req: NextRequest) {
           update.limitKeywords = getKeywordLimit(newPlan);
           update.limitScanMap = getScanMapBaseLimit(newPlan);
         }
+        if (startDate) update.subscriptionStartDate = startDate;
+        if (endDate) update.subscriptionEndDate = endDate;
 
         await User.findOneAndUpdate({ subscriptionId }, update);
         break;
@@ -157,5 +156,4 @@ export async function POST(req: NextRequest) {
   }
 }
 
-//export const runtime = 'edge';
 export const runtime = 'nodejs';
