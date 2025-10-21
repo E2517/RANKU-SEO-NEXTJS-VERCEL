@@ -203,12 +203,12 @@ export default function ProfileSection() {
                     <p><strong>Renueva automáticamente el:</strong> {new Date(user.subscriptionEndDate).toLocaleDateString()}</p>
                 )}
                 {!isSubscribed && <p><strong>Renueva automáticamente el:</strong> --</p>}
-                {user.subscriptionId && (
+                {/* {user.subscriptionId && (
                     <p><strong>ID de Suscripción:</strong> {user.subscriptionId}</p>
-                )}
-                {user.stripeCustomerId && (
+                )} */}
+                {/* {user.stripeCustomerId && (
                     <p><strong>ID de Cliente en Stripe:</strong> {user.stripeCustomerId}</p>
-                )}
+                )} */}
                 {user.subscriptionPlan !== 'Gratuito' && (
                     <p><strong>Keywords buscadas:</strong> <span id="keyword-usage">{keywordUsage} / {keywordLimit} ({user.subscriptionPlan})</span></p>
                 )}
