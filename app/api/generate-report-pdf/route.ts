@@ -194,7 +194,7 @@ export async function GET(req: NextRequest) {
                     <li><strong>Peor posición:</strong> #${worst}</li>
                     <li><strong>Aparece en:</strong> ${found.length} de ${rankMapResults.length} ubicaciones</li>
                 </ul>
-                <p><em>Los datos completos están disponibles en la sección RankMap.</em></p>
+                <p><em>Los datos de tu última busqueda en la sección RankMap.</em></p>
                 `;
             } else {
                 rankMapHtml = '<p>⚠️ Se encontraron resultados de RankMap, pero ninguno contiene una posición válida (>0).</p>';
@@ -217,7 +217,7 @@ export async function GET(req: NextRequest) {
                     <li><strong>Peor posición:</strong> #${worst}</li>
                     <li><strong>Aparece en:</strong> ${found.length} de ${scanMapResults.length} ubicaciones</li>
                 </ul>
-                <p><em>Los datos completos están disponibles en la sección ScanMap.</em></p>
+                <p><em>Los datos de tu última busqueda en la sección ScanMap.</em></p>
                 `;
             } else {
                 scanMapHtml = '<p>⚠️ Se encontraron resultados de ScanMap, pero ninguno contiene un ranking válido (>0).</p>';
