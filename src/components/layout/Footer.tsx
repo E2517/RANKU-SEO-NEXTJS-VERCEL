@@ -25,24 +25,6 @@ export default function Footer() {
           Contacto
         </Link>
       </p>
-      <div style={{ marginTop: '15px' }}>
-        <a
-          href="https://www.instagram.com/codecryptoaiguru"
-          target="_blank"
-          rel="noopener noreferrer"
-          style={{ margin: '0 10px', color: '#b64aa4', fontSize: '1.5rem' }}
-        >
-          <i className="fab fa-instagram"></i>
-        </a>
-        <a
-          href="https://www.youtube.com/@e2517dev"
-          target="_blank"
-          rel="noopener noreferrer"
-          style={{ margin: '0 10px', color: '#d64a6c', fontSize: '1.5rem' }}
-        >
-          <i className="fab fa-youtube"></i>
-        </a>
-      </div>
     </footer>
   );
 }
