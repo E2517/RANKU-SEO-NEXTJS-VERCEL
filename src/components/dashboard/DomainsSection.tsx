@@ -94,7 +94,7 @@ export default function DomainsSection() {
             <h2 style={{ color: '#6c4ab6', fontSize: '1.5rem', fontWeight: '700', marginBottom: '1rem' }}>Dominios por Palabra Clave</h2>
             <div style={{ marginBottom: '1.25rem' }}>
                 <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500', color: '#374151' }}>
-                    📊 Consulta el rendimiento de tus dominios y palabras clave...
+                    📊 Consulta el rendimiento de tus Dominios y Palabras Clave.
                 </label>
             </div>
             <form onSubmit={handleSubmit}>

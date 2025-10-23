@@ -81,7 +81,7 @@ export default function KeywordCounter() {
         <div className={styles.card}>
             <h2>Keywords Buscadas</h2>
             <div className={styles.formGroup}>
-                <label>🔍 Consulta las keywords únicas que has buscado.</label>
+                <label>🔍 Consulta las keywords que has buscado.</label>
             </div>
             <div className={styles.usageInfo}>
                 {records.length > 0

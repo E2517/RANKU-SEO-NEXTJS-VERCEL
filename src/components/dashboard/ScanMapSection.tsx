@@ -219,7 +219,7 @@ export default function ScanMapSection() {
         <div className={styles.card}>
             <h2>ScanMap – Visibilidad Local</h2>
             <div className={styles.formGroup}>
-                <label>🥷 La visibilidad de un dominio en los motores de búsqueda varía según la ubicación...</label>
+                <label>🥷 La visibilidad de un dominio cambia según la ubicación del usuario, porque Google, como buen vecino digital, sabe perfectamente quién vive en cada barrio. Los motores de búsqueda ajustan los resultados en función de la relevancia local y las preferencias regionales.</label>
             </div>
             <form onSubmit={handleSubmit}>
                 <div className={styles.formGroup}>
