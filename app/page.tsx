@@ -201,7 +201,7 @@ export default function Home() {
                 </div>
               </div>
               <ul className="card-features">
-                <li>250 keywords trackeadas</li>
+                <li>250 keywords</li>
                 <li>Análisis multi-dispositivo (Desktop + Mobile + Local)</li>
                 <li>Historial Dominio</li>
                 <li>Historial de búsquedas (palabra clave o dominio)</li>
@@ -225,7 +225,7 @@ export default function Home() {
                 </div>
               </div>
               <ul className="card-features">
-                <li>500 keywords trackeadas</li>
+                <li>500 keywords</li>
                 <li>Análisis multi-dispositivo (Desktop + Mobile + Local)</li>
                 <li>Historial Dominio</li>
                 <li>Historial de búsquedas (palabra clave o dominio)</li>
@@ -249,7 +249,7 @@ export default function Home() {
                 </div>
               </div>
               <ul className="card-features">
-                <li>1.000 keywords trackeadas</li>
+                <li>1.000 keywords</li>
                 <li>Análisis multi-dispositivo (Desktop + Mobile + Local)</li>
                 <li>Historial Dominio</li>
                 <li>Historial de búsquedas (palabra clave o dominio)</li>

@@ -262,7 +262,7 @@ export default function ProfileSection() {
                     <h3>Básico</h3>
                     <div className={styles.planPrice}>€25<span className={styles.period}>/mes</span></div>
                     <ul>
-                        <li>250 keywords trackeadas</li>
+                        <li>250 keywords</li>
                         <li>Análisis multi-dispositivo (Desktop + Mobile + Local)</li>
                         <li>Historial Dominio</li>
                         <li>Historial de búsquedas (palabra clave o dominio)</li>
@@ -281,7 +281,7 @@ export default function ProfileSection() {
                     <h3>Pro</h3>
                     <div className={styles.planPrice}>€50<span className={styles.period}>/mes</span></div>
                     <ul>
-                        <li>500 keywords trackeadas</li>
+                        <li>500 keywords</li>
                         <li>Análisis multi-dispositivo (Desktop + Mobile + Local)</li>
                         <li>Historial Dominio</li>
                         <li>Historial de búsquedas (palabra clave o dominio)</li>
@@ -300,7 +300,7 @@ export default function ProfileSection() {
                     <h3>Ultra</h3>
                     <div className={styles.planPrice}>€100<span className={styles.period}>/mes</span></div>
                     <ul>
-                        <li>1.000 keywords trackeadas</li>
+                        <li>1.000 keywords</li>
                         <li>Análisis multi-dispositivo (Desktop + Mobile + Local)</li>
                         <li>Historial Dominio</li>
                         <li>Historial de búsquedas (palabra clave o dominio)</li>
