@@ -123,7 +123,7 @@ export default function KeywordCounter() {
                             {records.map((record, index) => (
                                 <tr key={record._id || `kw-${index}-${record.palabraClave}-${record.dominioFiltrado}-${record.dispositivo}`}>
                                     <td>{record.palabraClave || '-'}</td>
-                                    <td>{record.dominioFiltrado || '-'}</td>
+                                    <td>{record.dominio || record.dominioFiltrado || '-'}</td>
                                     <td>{record.dispositivo || '-'}</td>
                                     <td>
                                         {record.updatedAt

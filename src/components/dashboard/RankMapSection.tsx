@@ -143,8 +143,8 @@ export default function RankMapSection() {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (isProcessing) return;
-        if (!keyword.trim() || !location.trim()) {
-            showToast.error('Introduce palabra clave y localización.', {
+        if (!keyword.trim() || !location.trim() || !domain.trim()) {
+            showToast.error('Introduce palabra clave, localización y dominio.', {
                 duration: 4000,
                 position: 'top-center',
                 transition: 'topBounce',
@@ -269,6 +269,7 @@ export default function RankMapSection() {
                             setKeyword(e.target.value);
                             if (error) setError('');
                         }}
+                        required
                     />
                 </div>
                 <div className={styles.formGroup}>
@@ -282,16 +283,18 @@ export default function RankMapSection() {
                             setLocation(e.target.value);
                             if (error) setError('');
                         }}
+                        required
                     />
                 </div>
                 <div className={styles.formGroup}>
-                    <label>Dominio (Opcional):</label>
+                    <label>Dominio:</label>
                     <input
                         type="text"
                         className={styles.input}
                         placeholder="Ej: miweb.com"
                         value={domain}
                         onChange={(e) => setDomain(e.target.value)}
+                        required
                     />
                 </div>
                 <div className={styles.distanceFilter}>
