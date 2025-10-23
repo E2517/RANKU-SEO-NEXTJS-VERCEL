@@ -143,7 +143,7 @@ export default function AISearchForm() {
             <h2 className={styles.sectionTitle}>Búsqueda con Inteligencia Artificial</h2>
             <div className={styles.formGroup}>
                 <label>
-                    🤖 Introduce una consulta natural. Indica el nombre del negocio y su dominio para ver su posición en la respuesta de la IA.
+                    🤖 Introduce una consulta natural. Indica el nombre del negocio y su dominio. Si te encuentra la IA buen trabajo en SEO.
                 </label>
             </div>
             <form onSubmit={handleSubmit}>

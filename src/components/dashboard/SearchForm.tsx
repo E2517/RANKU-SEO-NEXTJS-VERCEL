@@ -104,7 +104,7 @@ export default function SearchForm() {
             <h2 style={{ color: '#6c4ab6', fontSize: '1.5rem', fontWeight: '700', marginBottom: '1rem' }}>Realizar Búsqueda</h2>
             <div style={{ marginBottom: '1.25rem' }}>
                 <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500', color: '#374151' }}>
-                    🌎 Descubre las palabras clave que impulsan tu dominio en cada ubicación. Analiza dónde brillas más (y dónde necesitas foco) con datos reales de posicionamiento. El SEO local nunca fue tan claro… ni tan divertido. 😎📈
+                    🌎 Descubre las palabras clave que impulsan tu dominio en cada ubicación. Analiza dónde brillas más (y dónde necesitas foco) con datos reales de posicionamiento. El SEO local nunca fue tan claro… ni tan divertido.
                 </label>
             </div>
             <form onSubmit={handleSubmit}>
