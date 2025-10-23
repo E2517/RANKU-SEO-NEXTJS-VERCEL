@@ -29,7 +29,7 @@ export function getScanMapBaseLimit(plan: string): number {
     const limits: Record<string, number> = {
         Gratuito: 0,
         Basico: 5,
-        Pro: 15,
+        Pro: 10,
         Ultra: 15,
     };
     return limits[plan] || 0;
