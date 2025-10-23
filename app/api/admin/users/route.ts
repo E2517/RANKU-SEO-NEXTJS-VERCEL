@@ -3,7 +3,6 @@ import User from '@/models/User';
 import { connectDB } from '@/lib/mongoose';
 import { cookies } from 'next/headers';
 
-// Rol de 'admin' en tu modelo de usuario
 export async function GET() {
     await connectDB();
 
@@ -19,7 +18,7 @@ export async function GET() {
     }
 
     try {
-        const users = await User.find({}).select('email subscriptionPlan subscriptionStartDate subscriptionEndDate isSubscriptionCanceled createdAt');
+        const users = await User.find({}).select('email subscriptionPlan subscriptionStartDate subscriptionEndDate isSubscriptionCanceled createdAt limitKeywords limitScanMap');
         return NextResponse.json({ success: true, users });
     } catch (error) {
         console.error('Error fetching users:', error);

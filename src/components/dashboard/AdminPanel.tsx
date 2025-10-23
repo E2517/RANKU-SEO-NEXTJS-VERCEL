@@ -13,6 +13,8 @@ interface User {
     subscriptionEndDate?: string;
     isSubscriptionCanceled: boolean;
     createdAt: string;
+    limitKeywords: number;
+    limitScanMap: number;
 }
 
 interface TrialConfig {
@@ -297,6 +299,8 @@ export default function AdminPanel() {
                             <th>Fin</th>
                             <th>Cancelado</th>
                             <th>Registro</th>
+                            <th>Keywords</th>
+                            <th>ScanMap</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -309,11 +313,13 @@ export default function AdminPanel() {
                                     <td>{user.subscriptionEndDate ? new Date(user.subscriptionEndDate).toLocaleDateString() : '-'}</td>
                                     <td><span className={user.isSubscriptionCanceled ? styles.statusRed : styles.statusGreen}>{user.isSubscriptionCanceled ? 'Sí' : 'No'}</span></td>
                                     <td>{new Date(user.createdAt).toLocaleDateString()}</td>
+                                    <td>{user.limitKeywords}</td>
+                                    <td>{user.limitScanMap}</td>
                                 </tr>
                             ))
                         ) : (
                             <tr>
-                                <td colSpan={6} className={styles.noData}>No hay usuarios registrados.</td>
+                                <td colSpan={8} className={styles.noData}>No hay usuarios registrados.</td>
                             </tr>
                         )}
                     </tbody>
