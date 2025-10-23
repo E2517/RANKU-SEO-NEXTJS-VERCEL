@@ -264,12 +264,11 @@ export default function ProfileSection() {
                     <ul>
                         <li>250 keywords</li>
                         <li>Análisis multi-dispositivo (Desktop + Mobile + Local)</li>
-                        <li>Historial Dominio</li>
-                        <li>Historial de búsquedas (palabra clave o dominio)</li>
                         <li>Actualización diaria (24h) y semanal (7 dias)</li>
                         <li>Análisis de competencia</li>
                         <li>✅ RankMap: Posición en Google Maps por ubicación</li>
                         <li>🥷 ScanMap: Visibilidad de dominio según la ubicación del usuario (5 búsquedas/mes)</li>
+                        <li>🧠 AI Intelligence</li>
                         <li>📈 Estadisticas inteligentes</li>
                         <li>Informe en Excel descargable</li>
                         <li>Informe SEO PDF descargable</li>
@@ -283,12 +282,11 @@ export default function ProfileSection() {
                     <ul>
                         <li>500 keywords</li>
                         <li>Análisis multi-dispositivo (Desktop + Mobile + Local)</li>
-                        <li>Historial Dominio</li>
-                        <li>Historial de búsquedas (palabra clave o dominio)</li>
                         <li>Actualización diaria (24h) y semanal (7 dias)</li>
                         <li>Análisis de competencia</li>
                         <li>✅ RankMap: Posición en Google Maps por ubicación</li>
                         <li>🥷 ScanMap: Visibilidad de dominio según la ubicación del usuario (10 búsquedas/mes)</li>
+                        <li>🧠 AI Intelligence</li>
                         <li>📈 Estadisticas inteligentes</li>
                         <li>Informe en Excel descargable</li>
                         <li>Informe SEO PDF descargable</li>
@@ -302,12 +300,11 @@ export default function ProfileSection() {
                     <ul>
                         <li>1.000 keywords</li>
                         <li>Análisis multi-dispositivo (Desktop + Mobile + Local)</li>
-                        <li>Historial Dominio</li>
-                        <li>Historial de búsquedas (palabra clave o dominio)</li>
                         <li>Actualización diaria (24h) y semanal (7 dias)</li>
                         <li>Análisis de competencia</li>
                         <li>✅ RankMap: Posición en Google Maps por ubicación</li>
                         <li>🥷 ScanMap: Visibilidad de dominio según la ubicación del usuario (15 búsquedas/mes)</li>
+                        <li>🧠 AI Intelligence</li>
                         <li>📈 Estadisticas inteligentes</li>
                         <li>Informe en Excel descargable</li>
                         <li>Informe SEO PDF descargable</li>
