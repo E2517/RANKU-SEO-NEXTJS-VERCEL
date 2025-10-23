@@ -163,7 +163,7 @@ export default function AISearchForm() {
                     <label>Nombre del negocio (obligatorio):</label>
                     <input
                         type="text"
-                        placeholder="Ej: Coweb"
+                        placeholder="Ej: Tu Negocio"
                         name="business"
                         value={formData.business}
                         onChange={handleInputChange}
@@ -175,7 +175,7 @@ export default function AISearchForm() {
                     <label>Dominio (obligatorio):</label>
                     <input
                         type="text"
-                        placeholder="Ej: coweb.es"
+                        placeholder="Ej: tuweb.com"
                         name="domain"
                         value={formData.domain}
                         onChange={handleInputChange}
