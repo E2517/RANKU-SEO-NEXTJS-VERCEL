@@ -91,6 +91,12 @@ export async function GET() {
     try {
         const allKeywords = await SearchResult.aggregate<AggregatedKeyword>([
             {
+                $match: {
+                    buscador: { $in: ['google', 'google_local'] },
+                    tipoBusqueda: 'palabraClave'
+                }
+            },
+            {
                 $group: {
                     _id: {
                         palabraClave: "$palabraClave",
@@ -132,46 +138,54 @@ export async function GET() {
                         device: 'mobile'
                     };
 
-                    const response = await axios.get<SerpApiResponse>('https://serpapi.com/search', { params });
-                    const pageResults = response.data.local_results || response.data.ads_results || [];
-                    if (pageResults.length === 0) break;
+                    try {
+                        const response = await axios.get<SerpApiResponse>('https://serpapi.com/search', { params });
+                        const pageResults = response.data.local_results || response.data.ads_results || [];
+                        if (pageResults.length === 0) break;
 
-                    let foundInPage = false;
-                    for (const result of pageResults) {
-                        if (result.position !== undefined) {
-                            let resultDomain: string | null = null;
+                        let foundInPage = false;
+                        for (const result of pageResults) {
+                            if (result.position !== undefined) {
+                                let resultDomain: string | null = null;
 
-                            if (result.website) {
-                                resultDomain = normalizeDomain(result.website);
-                            } else if (result.links?.website) {
-                                resultDomain = normalizeDomain(result.links.website);
-                            }
+                                if (result.website) {
+                                    resultDomain = normalizeDomain(result.website);
+                                } else if (result.links?.website) {
+                                    resultDomain = normalizeDomain(result.links.website);
+                                }
 
-                            if (!resultDomain && result.title) {
-                                const cleanTitle = result.title.toLowerCase().replace(/[^a-z0-9]/g, '');
-                                const domainBase = dominioFiltrado
-                                    .replace(/^(www\.)?/, '')
-                                    .replace(/\.(es|com|net|org|eu|io|co)$/, '')
-                                    .toLowerCase()
-                                    .replace(/[^a-z0-9]/g, '');
+                                if (!resultDomain && result.title) {
+                                    const cleanTitle = result.title.toLowerCase().replace(/[^a-z0-9]/g, '');
+                                    const domainBase = dominioFiltrado
+                                        .replace(/^(www\.)?/, '')
+                                        .replace(/\.(es|com|net|org|eu|io|co)$/, '')
+                                        .toLowerCase()
+                                        .replace(/[^a-z0-9]/g, '');
 
-                                if (cleanTitle.includes(domainBase) || domainBase.includes(cleanTitle)) {
-                                    resultDomain = dominioFiltrado;
+                                    if (cleanTitle.includes(domainBase) || domainBase.includes(cleanTitle)) {
+                                        resultDomain = dominioFiltrado;
+                                    }
+                                }
+
+                                if (resultDomain === dominioFiltrado) {
+                                    position = start + result.position;
+                                    rating = result.rating || null;
+                                    reviews = result.reviews || null;
+                                    foundDomain = resultDomain;
+                                    foundInPage = true;
+                                    break;
                                 }
                             }
-
-                            if (resultDomain === dominioFiltrado) {
-                                position = start + result.position;
-                                rating = result.rating || null;
-                                reviews = result.reviews || null;
-                                foundDomain = resultDomain;
-                                foundInPage = true;
-                                break;
-                            }
                         }
-                    }
 
-                    if (foundInPage) break;
+                        if (foundInPage) break;
+                    } catch (error: any) {
+                        if (error.response?.status === 400 && typeof error.response.data?.error === 'string' && error.response.data.error.includes('location')) {
+                            console.warn(`Saltando keyword por error de localización: ${palabraClave} - ${location}`);
+                            break;
+                        }
+                        throw error;
+                    }
                 }
 
                 if (position > 0) {
@@ -233,25 +247,33 @@ export async function GET() {
                         device: dispositivo
                     };
 
-                    const response = await axios.get<SerpApiResponse>('https://serpapi.com/search', { params });
-                    const organic = response.data.organic_results || [];
-                    if (organic.length === 0) break;
+                    try {
+                        const response = await axios.get<SerpApiResponse>('https://serpapi.com/search', { params });
+                        const organic = response.data.organic_results || [];
+                        if (organic.length === 0) break;
 
-                    let foundInPage = false;
-                    for (let i = 0; i < organic.length; i++) {
-                        const result = organic[i];
-                        if (result.link) {
-                            const resultDomain = normalizeDomain(result.link);
-                            if (resultDomain === dominioFiltrado) {
-                                position = start + (result.position || i + 1);
-                                foundDomain = resultDomain;
-                                foundInPage = true;
-                                break;
+                        let foundInPage = false;
+                        for (let i = 0; i < organic.length; i++) {
+                            const result = organic[i];
+                            if (result.link) {
+                                const resultDomain = normalizeDomain(result.link);
+                                if (resultDomain === dominioFiltrado) {
+                                    position = start + (result.position || i + 1);
+                                    foundDomain = resultDomain;
+                                    foundInPage = true;
+                                    break;
+                                }
                             }
                         }
-                    }
 
-                    if (foundInPage) break;
+                        if (foundInPage) break;
+                    } catch (error: any) {
+                        if (error.response?.status === 400 && typeof error.response.data?.error === 'string' && error.response.data.error.includes('location')) {
+                            console.warn(`Saltando keyword por error de localización: ${palabraClave} - ${location}`);
+                            break;
+                        }
+                        throw error;
+                    }
                 }
 
                 if (position > 0) {
