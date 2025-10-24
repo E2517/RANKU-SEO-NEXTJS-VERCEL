@@ -7,6 +7,7 @@ import axios from 'axios';
 import { cookies } from 'next/headers';
 
 const SERPAPI_API_KEY = process.env.SERPAPI_API_KEY;
+const CRON_SECRET = process.env.CRON_SECRET;
 
 interface SerpApiResponse {
     organic_results?: {
@@ -57,19 +58,31 @@ interface SearchResultDocument {
     updatedAt?: Date;
 }
 
-export async function GET() {
+export async function GET(request: Request) {
+    const url = new URL(request.url);
     const cookieStore = await cookies();
-    const userId = cookieStore.get('user_id')?.value;
+    const userIdFromCookie = cookieStore.get('user_id')?.value;
+    const tokenFromQuery = url.searchParams.get('token');
 
-    if (!userId) {
-        return NextResponse.json({ success: false, message: 'No autenticado.' }, { status: 401 });
+    let isAuthorized = false;
+
+    if (!userIdFromCookie && CRON_SECRET && tokenFromQuery === CRON_SECRET) {
+        isAuthorized = true;
+    } else if (userIdFromCookie) {
+        await connectDB();
+        const user = await User.findById(userIdFromCookie);
+        if (user && user.role === 'admin') {
+            isAuthorized = true;
+        }
     }
 
-    await connectDB();
+    if (!isAuthorized) {
+        return NextResponse.json({ success: false, message: 'No autorizado.' }, { status: 401 });
+    }
 
-    const user = await User.findById(userId);
-    if (!user || user.role !== 'admin') {
-        return NextResponse.json({ success: false, message: 'Acceso denegado.' }, { status: 403 });
+    const mongooseGlobal: any = global;
+    if (!userIdFromCookie || !mongooseGlobal.mongoose) {
+        await connectDB();
     }
 
     if (!SERPAPI_API_KEY) {
@@ -265,7 +278,6 @@ export async function GET() {
                             updateData.last30dUpdate = now;
                         }
                     } else {
-                        // Primer registro: inicializar campos
                         updateData.posicionAnterior24h = null;
                         updateData.posicionAnterior7d = null;
                         updateData.posicionAnterior30d = null;
