@@ -48,25 +48,13 @@ interface SearchResultDocument {
     dispositivo: string;
     location: string | null;
     posicion: number;
+    posicionAnterior24h: number | null;
+    posicionAnterior7d: number | null;
+    posicionAnterior30d: number | null;
+    last7dUpdate: Date | null;
+    last30dUpdate: Date | null;
     createdAt?: Date;
     updatedAt?: Date;
-}
-
-interface UpdateData {
-    userId: string;
-    buscador: string;
-    dispositivo: string;
-    posicion: number;
-    palabraClave: string;
-    dominio: string;
-    tipoBusqueda: string;
-    dominioFiltrado: string;
-    location: string | null;
-    rating?: number | null;
-    reviews?: number | null;
-    updatedAt: Date;
-    posicionAnterior?: number;
-    fechaPosicionAnterior?: Date;
 }
 
 export async function GET() {
@@ -114,16 +102,17 @@ export async function GET() {
         }
 
         let updatedCount = 0;
+        const now = new Date();
 
         for (const entry of allKeywords) {
             const { palabraClave, dominioFiltrado, dispositivo, location } = entry._id;
 
-            if (dispositivo === 'google_local') {
-                let position = 0;
-                let rating: number | null = null;
-                let reviews: number | null = null;
-                let foundDomain: string | null = null;
+            let position = 0;
+            let rating: number | null = null;
+            let reviews: number | null = null;
+            let foundDomain: string | null = null;
 
+            if (dispositivo === 'google_local') {
                 for (let start = 0; start < 100; start += 20) {
                     const params = {
                         api_key: SERPAPI_API_KEY,
@@ -187,52 +176,7 @@ export async function GET() {
                         throw error;
                     }
                 }
-
-                if (position > 0) {
-                    for (const userId of entry.userIds) {
-                        const updateFilter = {
-                            userId: userId,
-                            palabraClave: palabraClave,
-                            dominioFiltrado: dominioFiltrado,
-                            dispositivo: 'google_local',
-                            ...(location ? { location } : {})
-                        };
-
-                        const existing = await SearchResult.findOne<SearchResultDocument>(updateFilter);
-
-                        const now = new Date();
-                        const newSetData: UpdateData = {
-                            userId: userId,
-                            buscador: 'google_local',
-                            dispositivo: 'google_local',
-                            posicion: position,
-                            palabraClave: palabraClave,
-                            dominio: foundDomain || dominioFiltrado,
-                            tipoBusqueda: 'palabraClave',
-                            dominioFiltrado: dominioFiltrado,
-                            location: location || null,
-                            rating,
-                            reviews,
-                            updatedAt: now
-                        };
-
-                        if (existing && existing.posicion !== undefined) {
-                            newSetData.posicionAnterior = existing.posicion;
-                            newSetData.fechaPosicionAnterior = existing.updatedAt || existing.createdAt;
-                        }
-
-                        await SearchResult.findOneAndUpdate(
-                            updateFilter,
-                            { $set: newSetData },
-                            { upsert: true, new: true }
-                        );
-                    }
-                    updatedCount++;
-                }
             } else {
-                let position = 0;
-                let foundDomain: string | null = null;
-
                 for (let start = 0; start < 100; start += 10) {
                     const params = {
                         api_key: SERPAPI_API_KEY,
@@ -275,46 +219,67 @@ export async function GET() {
                         throw error;
                     }
                 }
+            }
 
-                if (position > 0) {
-                    for (const userId of entry.userIds) {
-                        const updateFilter = {
-                            userId: userId,
-                            palabraClave: palabraClave,
-                            dominioFiltrado: dominioFiltrado,
-                            dispositivo: dispositivo,
-                            ...(location ? { location } : {})
-                        };
+            if (position > 0) {
+                for (const userId of entry.userIds) {
+                    const updateFilter = {
+                        userId: userId,
+                        palabraClave: palabraClave,
+                        dominioFiltrado: dominioFiltrado,
+                        dispositivo: dispositivo,
+                        ...(location ? { location } : {})
+                    };
 
-                        const existing = await SearchResult.findOne<SearchResultDocument>(updateFilter);
+                    const existing = await SearchResult.findOne<SearchResultDocument>(updateFilter);
 
-                        const now = new Date();
-                        const newSetData: UpdateData = {
-                            userId: userId,
-                            buscador: 'google',
-                            dispositivo: dispositivo,
-                            posicion: position,
-                            palabraClave: palabraClave,
-                            dominio: foundDomain || dominioFiltrado,
-                            tipoBusqueda: 'palabraClave',
-                            dominioFiltrado: dominioFiltrado,
-                            location: location || null,
-                            updatedAt: now
-                        };
+                    const updateData: any = {
+                        userId: userId,
+                        buscador: dispositivo === 'google_local' ? 'google_local' : 'google',
+                        dispositivo: dispositivo,
+                        posicion: position,
+                        palabraClave: palabraClave,
+                        dominio: foundDomain || dominioFiltrado,
+                        tipoBusqueda: 'palabraClave',
+                        dominioFiltrado: dominioFiltrado,
+                        location: location || null,
+                        rating: dispositivo === 'google_local' ? rating : undefined,
+                        reviews: dispositivo === 'google_local' ? reviews : undefined,
+                        updatedAt: now
+                    };
 
-                        if (existing && existing.posicion !== undefined) {
-                            newSetData.posicionAnterior = existing.posicion;
-                            newSetData.fechaPosicionAnterior = existing.updatedAt || existing.createdAt;
+                    if (existing && existing.posicion !== undefined) {
+                        updateData.posicionAnterior24h = existing.posicion;
+
+                        const last7d = existing.last7dUpdate;
+                        const daysSince7d = last7d ? Math.floor((now.getTime() - last7d.getTime()) / (1000 * 60 * 60 * 24)) : Infinity;
+                        if (daysSince7d >= 7) {
+                            updateData.posicionAnterior7d = existing.posicion;
+                            updateData.last7dUpdate = now;
                         }
 
-                        await SearchResult.findOneAndUpdate(
-                            updateFilter,
-                            { $set: newSetData },
-                            { upsert: true, new: true }
-                        );
+                        const last30d = existing.last30dUpdate;
+                        const daysSince30d = last30d ? Math.floor((now.getTime() - last30d.getTime()) / (1000 * 60 * 60 * 24)) : Infinity;
+                        if (daysSince30d >= 30) {
+                            updateData.posicionAnterior30d = existing.posicion;
+                            updateData.last30dUpdate = now;
+                        }
+                    } else {
+                        // Primer registro: inicializar campos
+                        updateData.posicionAnterior24h = null;
+                        updateData.posicionAnterior7d = null;
+                        updateData.posicionAnterior30d = null;
+                        updateData.last7dUpdate = now;
+                        updateData.last30dUpdate = now;
                     }
-                    updatedCount++;
+
+                    await SearchResult.findOneAndUpdate(
+                        updateFilter,
+                        { $set: updateData },
+                        { upsert: true, new: true }
+                    );
                 }
+                updatedCount++;
             }
         }
 

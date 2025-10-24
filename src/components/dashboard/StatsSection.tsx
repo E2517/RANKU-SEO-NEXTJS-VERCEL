@@ -50,8 +50,6 @@ export default function StatsSection() {
                 if (domain || keyword) {
                     loadDetailedStats(domain, keyword);
                 }
-            } else {
-                console.error('Error al cargar stats:', data.message);
             }
         } catch (err) {
             console.error('Error al cargar stats:', err);
@@ -72,8 +70,6 @@ export default function StatsSection() {
             const data = await res.json();
             if (data.success) {
                 setDetailedStats(data.results || []);
-            } else {
-                console.error('Error al cargar stats detalladas:', data.message);
             }
         } catch (err) {
             console.error('Error al cargar stats detalladas:', err);
@@ -242,6 +238,12 @@ export default function StatsSection() {
         }
     };
 
+    const getTrendColor = (change: string) => {
+        if (change.includes('▲')) return 'green';
+        if (change.includes('▼')) return 'red';
+        return 'gray';
+    };
+
     if (loading) {
         return <div className={styles.card}>Cargando estadísticas...</div>;
     }
@@ -358,6 +360,7 @@ export default function StatsSection() {
                             <th>Posición Actual</th>
                             <th>24h</th>
                             <th>7d</th>
+                            <th>30d</th>
                             <th>Buscador</th>
                             <th>Dispositivo</th>
                             <th>Localización</th>
@@ -369,8 +372,9 @@ export default function StatsSection() {
                                 <td>{row.keyword}</td>
                                 <td>{row.domain}</td>
                                 <td>{row.position}</td>
-                                <td>{row.change24h}</td>
-                                <td>{row.change7d}</td>
+                                <td style={{ color: getTrendColor(row.change24h) }}>{row.change24h}</td>
+                                <td style={{ color: getTrendColor(row.change7d) }}>{row.change7d}</td>
+                                <td style={{ color: getTrendColor(row.change30d) }}>{row.change30d}</td>
                                 <td>{row.searchEngine}</td>
                                 <td>{row.device}</td>
                                 <td>{row.location}</td>
