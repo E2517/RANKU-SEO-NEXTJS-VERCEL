@@ -21,7 +21,7 @@ export default function Home() {
           });
         }
       } catch (err) {
-        // Silently fail; trial message remains hidden
+        console.log(err)
       }
     };
 
