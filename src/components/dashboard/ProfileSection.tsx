@@ -264,7 +264,7 @@ export default function ProfileSection() {
                     <ul>
                         <li>250 keywords</li>
                         <li>Análisis multi-dispositivo (Desktop + Mobile + Local)</li>
-                        <li>Actualización diaria (24h), semanal (7 dias) y mensual (30 dias)</li>
+                        <li>Actualización diaria (24h), semanal (7 dias), mensual (30 dias)</li>
                         <li>Análisis de competencia</li>
                         <li>✅ RankMap: Posición en Google Maps por ubicación</li>
                         <li>🥷 ScanMap: Visibilidad de dominio según la ubicación del usuario (5 búsquedas/mes)</li>
@@ -282,7 +282,7 @@ export default function ProfileSection() {
                     <ul>
                         <li>500 keywords</li>
                         <li>Análisis multi-dispositivo (Desktop + Mobile + Local)</li>
-                        <li>Actualización diaria (24h), semanal (7 dias) y mensual (30 dias)</li>
+                        <li>Actualización diaria (24h), semanal (7 dias), mensual (30 dias)</li>
                         <li>Análisis de competencia</li>
                         <li>✅ RankMap: Posición en Google Maps por ubicación</li>
                         <li>🥷 ScanMap: Visibilidad de dominio según la ubicación del usuario (10 búsquedas/mes)</li>
@@ -300,7 +300,7 @@ export default function ProfileSection() {
                     <ul>
                         <li>1.000 keywords</li>
                         <li>Análisis multi-dispositivo (Desktop + Mobile + Local)</li>
-                        <li>Actualización diaria (24h), semanal (7 dias) y mensual (30 dias)</li>
+                        <li>Actualización diaria (24h), semanal (7 dias), mensual (30 dias)</li>
                         <li>Análisis de competencia</li>
                         <li>✅ RankMap: Posición en Google Maps por ubicación</li>
                         <li>🥷 ScanMap: Visibilidad de dominio según la ubicación del usuario (15 búsquedas/mes)</li>
